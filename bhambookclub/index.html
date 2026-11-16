@@ -141,7 +141,9 @@ const initials=n=>(n||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').
 const safeUrl=u=>{u=(u||'').trim();if(/^https?:\/\//i.test(u))return u;if(/^[\w-]+(\.[\w-]+)+(\/|$)/.test(u))return 'https://'+u;return ''};
 const parseTags=s=>[...new Set(String(s||'').split(',').map(t=>t.trim().toLowerCase()).filter(Boolean))].slice(0,12);
 const plural=(n,w)=>n+' '+w+(n===1?'':'s');
-const STATUS={read:'Read',reading:'Reading now',upcoming:'Up next',someday:'Someday'};
+const STATUS={read:'Book club pick',reading:'Book club pick',upcoming:'Book club pick',someday:'Book club pick',suggestion:'Past suggestion'};
+const isPick=b=>b.status!=='suggestion';
+const pickStatus=b=>b&&b.status&&b.status!=='suggestion'?b.status:'upcoming';
 const DEFAULT_CATS=[{id:'prose',label:'Writing & prose'},{id:'characters',label:'Character development'},{id:'plot',label:'Plot & pacing'},{id:'originality',label:'Originality'}];
 const CAT_IDEAS=['Themes & ideas','Emotional impact','Setting & atmosphere','Ending','Dialogue','Worldbuilding','Discussability','Page-turner factor'];
 const COURSES=['appetizer','entree','side','dessert','drink','snack'];
@@ -186,7 +188,8 @@ const avs=ids=>(ids=[...new Set(ids.map(canon))].filter(known)).length?`<span cl
 
 const books=()=>Object.entries(S.books).map(([id,b])=>({id,...b}));
 const meetings=()=>Object.entries(S.meetings).map(([id,m])=>({id,...m})).sort((a,b)=>(a.at||'').localeCompare(b.at||''));
-const isUpcoming=m=>{const d=dateObj(m.at);return d&&d.getTime()>Date.now()-5*3600e3};
+const ntitle=t=>String(t||'').toLowerCase().replace(/[^a-z0-9]+/g,'');
+const isUpcoming=m=>{const d=dateObj(m.at);return d&&d.getTime()>Date.now()-(m.at.length===10?29:5)*3600e3};
 const meetingsFor=bid=>meetings().filter(m=>m.bookId===bid);
 function bookDate(b){const ms=meetingsFor(b.id);if(ms.length)return ms[ms.length-1].at;return b.readOn||(b.createdAt?new Date(b.createdAt).toISOString():'')}
 function reviewsFor(bid){return Object.entries(S.reviews).map(([uid,d])=>d&&d.items&&d.items[bid]?{uid,...d.items[bid]}:null).filter(Boolean)}
@@ -269,7 +272,6 @@ function vHome(){
   const recent=Object.entries(S.reviews).flatMap(([uid,d])=>Object.entries((d&&d.items)||{}).map(([bid,r])=>({uid,bid,...r}))).filter(r=>S.books[r.bid]).sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,4);
   return `<div class="stack">
   <div class="tiles">
-    <div class="tile"><b>${read.length}</b><span>Books read</span></div>
     <div class="tile"><b>${past.length}</b><span>Meetings held</span></div>
     <div class="tile"><b>${rated.length?fmt(rated.reduce((a,b)=>a+b,0)/rated.length):'–'}</b><span>Avg rating</span></div>
     <div class="tile"><b style="font-size:20px;text-transform:capitalize">${top?esc(top[0]):'–'}</b><span>Top genre</span></div>
@@ -277,7 +279,6 @@ function vHome(){
   <div class="row">
     <button class="btn primary" data-act="new-poll">New book poll</button>
     <button class="btn" data-act="new-sched">Find a meeting date</button>
-    <button class="btn" data-act="add-book">Add a book</button>
     <button class="btn" data-act="log-meeting">Log a meeting</button>
   </div>
   ${todo.length?`<div class="card"><h3>Needs your vote</h3><div class="chips" style="margin-top:8px">${todo.join('')}</div></div>`:''}
@@ -321,28 +322,28 @@ function schedCard(s){
   const best=Math.max(0,...slots.map(x=>slotScore(s.id,x.id)));
   const responders=Object.values(S.ballots).filter(b=>b.slots&&b.slots[s.id]&&Object.keys(b.slots[s.id]).length).length;
   const bk=s.bookId&&S.books[s.bookId];
-  return `<div class="card stack"><div class="row spread"><div><h3>${esc(s.title)}</h3><div class="tiny mute">${open?'Tap a time to cycle: yes, maybe, clear. ':'Locked in. '}${plural(responders,'response')}${bk?' · '+esc(bk.title):''}</div></div>${open?'':'<span class="chip st">Closed</span>'}</div>
+  return `<div class="card stack"><div class="row spread"><div><h3>${esc(s.title)}</h3><div class="tiny mute">${open?'Tap a date to cycle: yes, maybe, clear. ':'Locked in. '}${plural(responders,'response')}${bk?' · '+esc(bk.title):''}</div></div>${open?'':'<span class="chip st">Closed</span>'}</div>
   ${slots.map(x=>{const v=slotVotes(s.id,x.id),m=mine[x.id];return `<div class="slot ${open&&best>0&&slotScore(s.id,x.id)===best?'best':''}"><div class="row"><div class="grow"><b>${esc(fmtDay(x.at))}</b> <span class="mute">${esc(fmtTime(x.at))}</span><div class="tiny mute">${v.y.length} yes · ${v.m.length} maybe</div><div>${avs(v.y.concat(v.m))}</div></div>${open?`<button class="slotbtn ${m||''}" data-act="slot" data-s="${s.id}" data-t="${x.id}">${m==='yes'?'✓ Yes':m==='maybe'?'~ Maybe':'Tap'}</button>`:s.chosenSlot===x.id?'<span class="chip on">Chosen</span>':''}</div></div>`}).join('')}
   <div class="row">${open?`<button class="btn primary s" data-act="lock-sched" data-id="${s.id}">Lock in a date</button>`:s.meetingId&&S.meetings[s.meetingId]?`<button class="btn s" data-act="open-meeting" data-id="${s.meetingId}">View meeting</button>`:''}<button class="btn danger s" data-act="del-sched" data-id="${s.id}">Delete</button></div></div>`;
 }
 
 /* ---------- BOOKS ---------- */
 function buildBooksShell(){
-  $('#main').innerHTML=banner()+`<div class="stack"><div class="row spread"><h2>Library</h2><button class="btn primary" data-act="add-book">Add a book</button></div>
+  $('#main').innerHTML=banner()+`<div class="stack"><div class="row spread"><h2>Library</h2></div>
   <div class="toolbar"><input id="q" type="search" placeholder="Search title, author or genre…" value="${esc(F.q)}"><select id="sort"><option value="recent">Most recent</option><option value="title">Title A–Z</option><option value="author">Author A–Z</option><option value="rating">Top rated</option></select></div>
   <div class="seg" id="statusTabs"></div><div class="chips" id="tagBar"></div><div class="grid" id="results"></div></div>`;
   $('#sort').value=F.sort;
 }
 function updateBooks(){
   const all=books();
-  $('#statusTabs').innerHTML=[['all','All']].concat(Object.entries(STATUS)).map(([k,l])=>`<button class="${F.status===k?'on':''}" data-act="status-tab" data-k="${k}">${l} <span class="tiny">${k==='all'?all.length:all.filter(b=>b.status===k).length}</span></button>`).join('');
+  $('#statusTabs').innerHTML=[['all','All'],['pick','Book club pick'],['suggestion','Past suggestions']].map(([k,l])=>`<button class="${F.status===k?'on':''}" data-act="status-tab" data-k="${k}">${l} <span class="tiny">${k==='all'?all.length:k==='pick'?all.filter(isPick).length:all.filter(b=>!isPick(b)).length}</span></button>`).join('');
   const tc=allTags(),keys=Object.keys(tc).sort((a,b)=>tc[b]-tc[a]||a.localeCompare(b));
   $('#tagBar').innerHTML=keys.length?keys.map(t=>`<button class="chip ${F.tags.has(t)?'on':''}" data-act="tag-filter" data-t="${esc(t)}">${esc(t)} ${tc[t]}</button>`).join('')+(F.tags.size?'<button class="chip st" data-act="clear-tags">Clear</button>':''):'';
   const q=F.q.trim().toLowerCase();
-  let list=all.filter(b=>(F.status==='all'||b.status===F.status)&&[...F.tags].every(t=>(b.tags||[]).includes(t))&&(!q||[b.title,b.author,(b.tags||[]).join(' '),b.blurb].join(' ').toLowerCase().includes(q)));
+  let list=all.filter(b=>(F.status==='all'||(F.status==='pick'?isPick(b):!isPick(b)))&&[...F.tags].every(t=>(b.tags||[]).includes(t))&&(!q||[b.title,b.author,(b.tags||[]).join(' '),b.blurb].join(' ').toLowerCase().includes(q)));
   const by={title:(a,b)=>(a.title||'').localeCompare(b.title||''),author:(a,b)=>(a.author||'').localeCompare(b.author||''),rating:(a,b)=>(avg(b.id)||0)-(avg(a.id)||0),recent:(a,b)=>bookDate(b).localeCompare(bookDate(a))};
   list.sort(by[F.sort]);
-  $('#results').innerHTML=list.length?list.map(b=>{const a=avg(b.id),n=reviewsFor(b.id).length;return `<div class="card bookcard" data-act="open-book" data-id="${b.id}" role="button" tabindex="0">${cover(b)}<div class="grow"><h3>${esc(b.title)}</h3><div class="mute sm">${esc(b.author||'')}</div><div class="chips" style="margin:6px 0">${tagChips(b.tags,true)}</div><div class="row sm">${a!=null?stars(a)+' <b>'+fmt(a)+'</b><span class="mute">('+n+')</span>':'<span class="mute">Not rated yet</span>'}<span class="chip st">${STATUS[b.status]||''}</span></div></div></div>`}).join(''):`<div class="card empty" style="grid-column:1/-1">${all.length?'No books match these filters.':'Your library is empty. Add the books you’ve read, or run a poll to pick the next one.'}</div>`;
+  $('#results').innerHTML=list.length?list.map(b=>{const a=avg(b.id),n=reviewsFor(b.id).length;return `<div class="card bookcard" data-act="open-book" data-id="${b.id}" role="button" tabindex="0">${cover(b)}<div class="grow"><h3>${esc(b.title)}</h3><div class="mute sm">${esc(b.author||'')}</div><div class="chips" style="margin:6px 0">${tagChips(b.tags,true)}</div><div class="row sm">${a!=null?stars(a)+' <b>'+fmt(a)+'</b><span class="mute">('+n+')</span>':'<span class="mute">Not rated yet</span>'}<span class="chip st">${STATUS[b.status]||''}</span></div></div></div>`}).join(''):`<div class="card empty" style="grid-column:1/-1">${all.length?'No books match these filters.':'Your library is empty. Run a book poll and the candidates will show up here.'}</div>`;
 }
 
 /* ---------- RANKINGS ---------- */
@@ -403,12 +404,12 @@ const bookOptions=(sel,none)=>`<option value="">${none||'No book'}</option>`+boo
 
 /* --- book form --- */
 function bookForm(id){
-  const b=id?S.books[id]:{status:'someday'};if(!b)return;
+  const b=id?S.books[id]:{status:'upcoming'};if(!b)return;
   const tags=allTags();const sugg=[...new Set(GENRES.concat(Object.keys(tags)))];
   openModal(()=>`${head(id?'Edit book':'Add a book')}
   <label class="f">Title<input type="text" id="bf-title" value="${esc(b.title||'')}"></label>
   <label class="f">Author<input type="text" id="bf-author" value="${esc(b.author||'')}"></label>
-  <div class="row" style="align-items:flex-start"><label class="f grow">Status<select id="bf-status">${Object.entries(STATUS).map(([k,l])=>`<option value="${k}" ${b.status===k?'selected':''}>${l}</option>`).join('')}</select></label></div>
+  <div class="row" style="align-items:flex-start"><label class="f grow">Status<select id="bf-status"><option value="pick" ${isPick(b)?'selected':''}>Book club pick</option><option value="suggestion" ${!isPick(b)?'selected':''}>Past suggestion</option></select></label></div>
   <label class="f">Month read (optional)<input type="month" id="bf-read" value="${esc(b.readOn||'')}"></label>
   <label class="f">Genre tags (comma separated)<input type="text" id="bf-tags" value="${esc((b.tags||[]).join(', '))}" placeholder="mystery, historical"></label>
   <div class="chips" style="margin-top:8px">${sugg.map(t=>`<button class="chip" type="button" data-act="sugg-tag" data-t="${esc(t)}">+ ${esc(t)}</button>`).join('')}</div>
@@ -418,7 +419,7 @@ function bookForm(id){
 async function saveBook(id){
   const title=val('bf-title');if(!title){toast('Please enter a title.');return}
   const prev=id?S.books[id]:{};
-  const data={...prev,title,author:val('bf-author'),status:val('bf-status'),readOn:val('bf-read'),tags:parseTags(val('bf-tags')),blurb:val('bf-blurb')};
+  const data={...prev,title,author:val('bf-author'),status:val('bf-status')==='pick'?pickStatus(prev):'suggestion',readOn:val('bf-read'),tags:parseTags(val('bf-tags')),blurb:val('bf-blurb')};
   if(!id){data.createdAt=Date.now();data.addedBy=me||''}
   const bid=id||newId('books');
   if(await put('books/'+bid,data)){closeModal()}
@@ -436,7 +437,7 @@ function bookDetail(id){
   return `${head(esc(b.title),esc(b.author||''))}
   <div class="row" style="margin-top:14px;align-items:flex-start">${cover(b,'lg')}<div class="grow stack">
     <div class="row">${a!=null?stars(a)+` <b>${fmt(a)}</b> <span class="mute sm">${plural(rs.length,'review')}</span>`:'<span class="mute">No ratings yet</span>'}</div>
-    <label class="sm" style="font-weight:500">Status <select id="statusSel" data-change="status" style="width:auto;margin-left:6px">${Object.entries(STATUS).map(([k,l])=>`<option value="${k}" ${b.status===k?'selected':''}>${l}</option>`).join('')}</select></label>
+    <label class="sm" style="font-weight:500">Status <select id="statusSel" data-change="status" style="width:auto;margin-left:6px"><option value="pick" ${isPick(b)?'selected':''}>Book club pick</option><option value="suggestion" ${!isPick(b)?'selected':''}>Past suggestion</option></select></label>
     <div class="sm"><a href="${esc('https://www.goodreads.com/search?q='+encodeURIComponent(((b.title||'')+' '+(b.author||'')).trim()))}" target="_blank" rel="noopener noreferrer">Find on Goodreads</a></div>
     ${b.readOn&&!ms.length?`<div class="sm mute">Read in ${esc(fmtMonth(b.readOn))}</div>`:''}
   </div></div>
@@ -459,16 +460,16 @@ function bookDetail(id){
 /* --- meeting form & detail --- */
 function meetingForm(id,prefill){
   const m=id?S.meetings[id]:(prefill||{});
-  const defAt=(m.at&&m.at.length===10?m.at+'T19:00':m.at)||(()=>{const d=new Date();d.setDate(d.getDate()+14);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T19:00`})();
+  const defAt=m.at||(()=>{const d=new Date();d.setDate(d.getDate()+14);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`})();const defD=defAt.slice(0,10),defT=defAt.length>10?defAt.slice(11,16):'';
   openModal(()=>`${head(id?'Edit meeting':'Add a meeting')}
-  <label class="f">Date & time<input type="datetime-local" id="mf-at" value="${esc(defAt)}"></label>
+  <div class="row" style="align-items:flex-start"><label class="f grow">Date<input type="date" id="mf-at" value="${esc(defD)}"></label><label class="f grow">Time (optional)<input type="time" id="mf-time" value="${esc(defT)}"></label></div>
   <label class="f">Book discussed<select id="mf-book">${bookOptions(m.bookId)}</select></label>
   <label class="f">Where<input type="text" id="mf-loc" value="${esc(m.location||'')}" placeholder="Someone’s place, a café, Zoom link…"></label>
   <label class="f">Hosted by<input type="text" id="mf-host" list="rosterNames" value="${esc(m.host||'')}" placeholder="Pick or type a name">${hostList()}</label>
   <div class="row" style="margin-top:16px"><button class="btn primary" data-act="save-meeting" data-id="${id||''}" data-sched="${esc(m.scheduleId||'')}">${id?'Save changes':'Add meeting'}</button><button class="btn" data-act="close">Cancel</button></div>`);
 }
 async function saveMeeting(id,sched){
-  const at=val('mf-at');if(!at){toast('Please choose a date.');return}
+  const d0=val('mf-at'),t0=val('mf-time');if(!d0){toast('Please choose a date.');return}const at=t0?d0+'T'+t0:d0;
   const prev=id?S.meetings[id]:{attendees:[],guests:'',minutes:'',items:[]};
   const data={...prev,at,bookId:val('mf-book'),location:val('mf-loc'),host:val('mf-host')};
   if(sched)data.scheduleId=sched;
@@ -520,32 +521,40 @@ function closePollModal(pid){
   openModal(()=>`${head('Pick the winner')}
   ${tie?'<p class="sm" style="color:var(--warm)">There’s a tie at the top. Choose which book wins.</p>':''}
   <div class="stack" style="margin-top:10px">${c.map((x,i)=>`<label class="card row" style="cursor:pointer"><input type="radio" name="win" value="${x.o.id}" ${i===0?'checked':''} style="width:auto"><div class="grow"><b>${esc(x.o.title)}</b> <span class="mute sm">${esc(x.o.author||'')}</span></div><b>${x.n}</b></label>`).join('')}</div>
-  <p class="tiny mute">The winner is added to the library as “Up next”.</p>
+  <p class="tiny mute">The winner becomes the Book Club Pick and the next meeting’s book. The other candidates are saved to the library as Past suggestions.</p>
   <div class="row" style="margin-top:14px"><button class="btn primary" data-act="confirm-close" data-id="${pid}">Close poll</button><button class="btn" data-act="close">Cancel</button></div>`);
 }
 async function confirmClose(pid){
   const p=S.polls[pid];if(!p||p.status!=='open'){closeModal();return}
   const r=document.querySelector('input[name=win]:checked');if(!r)return;
   const o=(p.options||[]).find(x=>x.id===r.value);if(!o)return;
-  const bid=newId('books');
-  const ok=await put('books/'+bid,{title:o.title,author:o.author||'',tags:o.tags||[],blurb:o.blurb||'',status:'upcoming',readOn:'',createdAt:Date.now(),addedBy:me||'',fromPoll:pid});
-  if(ok&&await upd('polls/'+pid,{status:'closed',winnerOpt:o.id,bookId:bid})){closeModal();toast('“'+o.title+'” is up next!')}
+  const byTitle={};Object.entries(S.books).forEach(([id,b])=>{byTitle[ntitle(b.title)]=id});
+  let bid=byTitle[ntitle(o.title)],ok;
+  if(bid)ok=await upd('books/'+bid,{status:S.books[bid].status==='suggestion'?'upcoming':S.books[bid].status});
+  else{bid=newId('books');ok=await put('books/'+bid,{title:o.title,author:o.author||'',tags:o.tags||[],blurb:o.blurb||'',status:'upcoming',readOn:'',createdAt:Date.now(),addedBy:me||'',fromPoll:pid})}
+  if(!ok)return;
+  for(const x of (p.options||[])){if(x.id===o.id||byTitle[ntitle(x.title)])continue;
+    await put('books/'+newId('books'),{title:x.title,author:x.author||'',tags:x.tags||[],blurb:x.blurb||'',status:'suggestion',readOn:'',createdAt:Date.now(),addedBy:x.by||me||'',fromPoll:pid})}
+  const nm1=meetings().find(m=>isUpcoming(m)&&!m.bookId);
+  if(nm1)await upd('meetings/'+nm1.id,{bookId:bid});
+  for(const [sid,sc] of Object.entries(S.schedules)){if(sc.status==='open'&&!sc.bookId)await upd('schedules/'+sid,{bookId:bid})}
+  if(await upd('polls/'+pid,{status:'closed',winnerOpt:o.id,bookId:bid})){closeModal();toast('“'+o.title+'” is the next pick!')}
 }
-function slotRow(v){return `<div class="row slotrow" style="margin-top:8px"><input type="datetime-local" class="s-at" value="${v||''}" style="flex:1;width:auto"></div>`}
+function slotRow(v){return `<div class="row slotrow" style="margin-top:8px"><input type="date" class="s-at" value="${v||''}" style="flex:1;width:auto"></div>`}
 function newSched(){
   const base=new Date();base.setDate(base.getDate()+(((6-base.getDay())+7)%7||7)+7);
-  const mk=(d,h)=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(h)}:00`;
+  const mk=(d)=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
   const d1=new Date(base),d2=new Date(base);d2.setDate(d2.getDate()+1);const d3=new Date(base);d3.setDate(d3.getDate()+7);
-  openModal(()=>`${head('Find a meeting date','Propose a few times, then everyone marks what works.')}
+  openModal(()=>`${head('Find a meeting date','Propose a few dates, then everyone marks what works. You can add the time later.')}
   <label class="f">Title<input type="text" id="ns-title" value="Next meeting"></label>
   <label class="f">Book we’ll discuss (optional)<select id="ns-book">${bookOptions((books().find(b=>b.status==='reading')||books().find(b=>b.status==='upcoming')||{}).id)}</select></label>
-  <h3 style="margin-top:16px">Possible times</h3><div id="slotRows">${slotRow(mk(d1,19))+slotRow(mk(d2,16))+slotRow(mk(d3,19))}</div>
-  <button class="btn s" style="margin-top:8px" data-act="more-slot">Add another time</button>
+  <h3 style="margin-top:16px">Possible dates</h3><div id="slotRows">${slotRow(mk(d1))+slotRow(mk(d2))+slotRow(mk(d3))}</div>
+  <button class="btn s" style="margin-top:8px" data-act="more-slot">Add another date</button>
   <div class="row" style="margin-top:18px"><button class="btn primary" data-act="save-sched">Start poll</button><button class="btn" data-act="close">Cancel</button></div>`);
 }
 async function saveSched(){
   const slots=$$('.s-at').map(i=>i.value).filter(Boolean).map(at=>({id:'t'+rid(),at}));
-  if(slots.length<2){toast('Add at least two times.');return}
+  if(slots.length<2){toast('Add at least two dates.');return}
   const id=newId('schedules');
   if(await put('schedules/'+id,{title:val('ns-title')||'Next meeting',bookId:val('ns-book'),slots,status:'open',createdBy:me||'',createdAt:Date.now()})){closeModal();location.hash='polls'}
 }
@@ -565,7 +574,7 @@ async function confirmLock(sid){
   const r=document.querySelector('input[name=slot]:checked');if(!r)return;
   const slot=(s.slots||[]).find(x=>x.id===r.value);if(!slot)return;
   const mid=newId('meetings');
-  const ok=await put('meetings/'+mid,{at:slot.at,bookId:s.bookId||'',location:val('lk-loc'),host:val('lk-host'),attendees:[],guests:'',minutes:'',items:[],scheduleId:sid});
+  const ok=await put('meetings/'+mid,{at:slot.at,bookId:s.bookId||((books().find(b=>b.status==='reading')||books().find(b=>b.status==='upcoming')||{}).id)||'',location:val('lk-loc'),host:val('lk-host'),attendees:[],guests:'',minutes:'',items:[],scheduleId:sid});
   if(ok&&await upd('schedules/'+sid,{status:'closed',meetingId:mid,chosenSlot:slot.id})){closeModal();toast('Meeting added to the calendar.')}
 }
 const catRow=c=>`<div class="row catrow" data-id="${esc(c.id)}" style="margin-top:8px"><input type="text" class="c-label" value="${esc(c.label)}" style="flex:1;width:auto"><button class="btn s danger" data-act="rm-cat" aria-label="Remove category">×</button></div>`;
@@ -582,8 +591,8 @@ function vMembers(){
   const held=meetings().filter(m=>!isUpcoming(m)).length;
   const rows=roster().map(e=>({e,s:stats(e)})).sort((a,b)=>b.s.att.length-a.s.att.length||a.e.name.localeCompare(b.e.name));
   return `<div class="stack"><div class="row spread"><h2>Members</h2><button class="btn primary" data-act="add-person">Add a member</button></div>
-  <div class="tiny mute">People who sign in show up here on their own. Add anyone who hasn’t, so their attendance still counts. “Books read” means discussed at a meeting they attended, or reviewed by them.</div>
-  ${rows.length?`<div class="grid">${rows.map(({e,s})=>{const g=grLink(e);return `<div class="card bookcard" data-act="open-member" data-id="${esc(e.id)}" role="button" tabindex="0">${avatar(e.id)}<div class="grow"><h3>${esc(e.name)}${e.id===me?' <span class="tiny mute">(you)</span>':''}</h3>${g?`<div class="tiny"><a href="${esc(g)}" target="_blank" rel="noopener noreferrer">Goodreads profile</a></div>`:''}<div class="sm mute" style="margin-top:6px">${s.att.length} of ${held} meetings · ${plural(s.read.length,'book')} read · ${plural(s.reviewed.length,'review')}${s.hosted.length?' · hosted '+s.hosted.length:''}</div></div></div>`}).join('')}</div>`:'<div class="card empty">No members yet.</div>'}
+  <div class="tiny mute">People who sign in show up here on their own. Add anyone who hasn’t, so their attendance still counts.</div>
+  ${rows.length?`<div class="grid">${rows.map(({e,s})=>{const g=grLink(e);return `<div class="card bookcard" data-act="open-member" data-id="${esc(e.id)}" role="button" tabindex="0">${avatar(e.id)}<div class="grow"><h3>${esc(e.name)}${e.id===me?' <span class="tiny mute">(you)</span>':''}</h3>${g?`<div class="tiny"><a href="${esc(g)}" target="_blank" rel="noopener noreferrer">Goodreads profile</a></div>`:''}<div class="sm mute" style="margin-top:6px">${s.att.length} of ${held} meetings · ${plural(s.reviewed.length,'review')}${s.hosted.length?' · hosted '+s.hosted.length:''}</div></div></div>`}).join('')}</div>`:'<div class="card empty">No members yet.</div>'}
   </div>`;
 }
 function openMember(id){openModal(()=>memberDetail(id),null,true)}
@@ -598,7 +607,7 @@ function memberDetail(id){
   const unrev=s.read.filter(b=>!s.reviewed.includes(b));
   return `${head(esc(e.name)+(self?' <span class="mute sm">(you)</span>':''),e.kind==='member'?'Signed-in member':'Added to the roster')}
   <div class="row" style="margin-top:12px">${g?`<a class="btn s" href="${esc(g)}" target="_blank" rel="noopener noreferrer">Goodreads profile</a>`:'<span class="mute sm">No Goodreads link yet</span>'}</div>
-  <div class="tiles" style="margin-top:14px"><div class="tile"><b>${s.att.length}<span style="font:400 13px Inter"> / ${held}</span></b><span>Meetings</span></div><div class="tile"><b>${s.read.length}</b><span>Books read</span></div><div class="tile"><b>${s.reviewed.length}</b><span>Reviews</span></div><div class="tile"><b>${s.avg!=null?fmt(s.avg):'–'}</b><span>Avg score</span></div><div class="tile"><b>${s.hosted.length}</b><span>Hosted</span></div></div>
+  <div class="tiles" style="margin-top:14px"><div class="tile"><b>${s.att.length}<span style="font:400 13px Inter"> / ${held}</span></b><span>Meetings</span></div><div class="tile"><b>${s.reviewed.length}</b><span>Reviews</span></div><div class="tile"><b>${s.avg!=null?fmt(s.avg):'–'}</b><span>Avg score</span></div><div class="tile"><b>${s.hosted.length}</b><span>Hosted</span></div></div>
   ${editable?`<hr>${e.kind==='person'?`<label class="f">Name<input type="text" id="pn-name" value="${esc(e.name)}"></label>`:''}<label class="f">Goodreads profile link<input type="url" id="gr-url" value="${esc(rawGr)}" placeholder="https://www.goodreads.com/user/show/…"></label><div class="row" style="margin-top:10px"><button class="btn primary s" data-act="save-profile" data-id="${esc(e.id)}">Save</button></div>`:''}
   <hr><h3>Meetings attended</h3>${att.length?att.map(m=>`<div class="item" data-act="open-meeting" data-id="${m.id}" style="cursor:pointer;align-items:center"><div class="grow"><b>${S.books[m.bookId]?esc(S.books[m.bookId].title):'Club meeting'}</b><div class="tiny mute">${esc(fmtDay(m.at))}</div></div></div>`).join(''):'<p class="mute sm">None recorded yet. Tick them off inside each meeting.</p>'}
   ${revs.length?`<hr><h3>Reviews</h3>${revs.map(r=>{const cs=cl.filter(c=>r.cats&&r.cats[c.id]!=null);return `<div class="item" data-act="open-book" data-id="${r.b}" style="cursor:pointer"><div class="grow"><b>${esc(S.books[r.b].title)}</b> ${r.rating!=null?stars(r.rating)+' <b class="sm">'+fmt(r.rating)+'/5</b>':''}${cs.length?`<div class="chips" style="margin-top:4px">${cs.map(c=>`<span class="chip st">${esc(c.label)} ${fmt(r.cats[c.id])}</span>`).join('')}</div>`:''}${r.text?`<div class="pre sm" style="margin-top:4px">${esc(r.text)}</div>`:''}</div></div>`}).join('')}`:''}
@@ -747,7 +756,7 @@ document.addEventListener('change',e=>{
   const t=e.target;
   if(t.id==='sort'){F.sort=t.value;updateBooks()}
   if(t.type==='range'&&t.dataset.k&&modal)drawModal();
-  if(t.dataset.change==='status'&&rv.bid)upd('books/'+rv.bid,{status:t.value});
+  if(t.dataset.change==='status'&&rv.bid)upd('books/'+rv.bid,{status:t.value==='pick'?pickStatus(S.books[rv.bid]):'suggestion'});
   if(t.dataset.change==='guests'){const m=modal&&$$('[data-act=toggle-att]').length&&$('[data-act=toggle-att]').dataset.id;if(m)upd('meetings/'+m,{guests:t.value.trim()})}
 });
 
