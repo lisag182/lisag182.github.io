@@ -15,3 +15,5 @@ Sign-in is Cloudflare Access (email one-time PIN). Each person can edit only the
 `node --no-warnings test.mjs` (needs Node 22; uses a seed.sql next to it).
 
 `claude-artifact/index.html` is the original version for the Claude artifact runtime.
+
+_Deployed on Cloudflare Pages._
