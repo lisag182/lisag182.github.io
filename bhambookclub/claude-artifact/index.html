@@ -372,7 +372,7 @@ function schedCard(s){
 function buildBooksShell(){
   $('#main').innerHTML=banner()+`<div class="stack"><div class="row spread"><h2>Library</h2><button class="btn" data-act="manage-genres">Manage genres</button></div>
   <div class="toolbar"><input id="q" type="search" placeholder="Search title, author or genre…" value="${esc(F.q)}"><select id="sort"><option value="recent">Most recent</option><option value="title">Title A–Z</option><option value="author">Author A–Z</option><option value="rating">Top rated</option></select></div>
-  <div class="seg" id="statusTabs"></div><div class="chips" id="tagBar"></div><div class="grid" id="results"></div></div>`;
+  <div class="tiles" id="bookSum"></div><div class="seg" id="statusTabs"></div><div class="chips" id="tagBar"></div><div class="grid" id="results"></div></div>`;
   $('#sort').value=F.sort;
 }
 function updateBooks(){
@@ -384,6 +384,8 @@ function updateBooks(){
   let list=all.filter(b=>(F.status==='all'||(F.status==='pick'?isPick(b):!isPick(b)))&&[...F.tags].every(t=>(b.tags||[]).includes(t))&&(!q||[b.title,b.author,(b.tags||[]).join(' '),b.blurb].join(' ').toLowerCase().includes(q)));
   const by={title:(a,b)=>(a.title||'').localeCompare(b.title||''),author:(a,b)=>(a.author||'').localeCompare(b.author||''),rating:(a,b)=>(avg(b.id)||0)-(avg(a.id)||0),recent:(a,b)=>bookDate(b).localeCompare(bookDate(a))};
   list.sort(by[F.sort]);
+  const rv0=list.flatMap(b=>reviewsFor(b.id)).filter(x=>x.rating!=null);
+  $('#bookSum').innerHTML=`<div class="tile"><b>${rv0.length?fmt(rv0.reduce((a,x)=>a+x.rating,0)/rv0.length):'–'}</b><span>Avg review score</span></div><div class="tile"><b>${rv0.length}</b><span>${rv0.length===1?'Review':'Reviews'}</span></div><div class="tile"><b>${list.length}</b><span>${list.length===1?'Book':'Books'} shown</span></div>`;
   $('#results').innerHTML=list.length?list.map(b=>{const a=avg(b.id),n=reviewsFor(b.id).length;return `<div class="card bookcard" data-act="open-book" data-id="${b.id}" role="button" tabindex="0">${cover(b)}<div class="grow"><h3>${esc(b.title)}</h3><div class="mute sm">${esc(b.author||'')}</div><div class="chips" style="margin:6px 0">${tagChips(b.tags,true)}</div><div class="row sm">${a!=null?stars(a)+' <b>'+fmt(a)+'</b><span class="mute">('+n+')</span>':'<span class="mute">Not rated yet</span>'}<span class="chip st">${STATUS[b.status]||''}</span></div></div></div>`}).join(''):`<div class="card empty" style="grid-column:1/-1">${all.length?'No books match these filters.':'Your library is empty. Run a book poll and the candidates will show up here.'}</div>`;
 }
 
