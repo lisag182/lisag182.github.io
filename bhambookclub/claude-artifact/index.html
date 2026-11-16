@@ -301,8 +301,6 @@ function vHome(){
   <div class="tiles">
     <div class="tile"><b>${roster().length}</b><span>Members</span></div>
     <div class="tile"><b>${past.length}</b><span>Meetings held</span></div>
-    <div class="tile"><b>${rated.length?fmt(rated.reduce((a,b)=>a+b,0)/rated.length):'–'}</b><span>Avg rating</span></div>
-    <div class="tile"><b style="font-size:20px;text-transform:capitalize">${top?esc(top[0]):'–'}</b><span>Top genre</span></div>
   </div>
   ${openPolls.length||openScheds.length?`<h3>Open polls</h3>${openPolls.map(pollCard).join('')}${openScheds.map(schedCard).join('')}`:''}
   <div class="grid">
