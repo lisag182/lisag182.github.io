@@ -1,11 +1,17 @@
-# Book Club site
+# Book Club site (Cloudflare Pages + D1 + Access)
 
-A single-page web app for our book club: polls for the next book, meeting-date scheduling, a library with genre tags, scored reviews (overall plus category scores in quarter points), rankings, meetings with attendance, hosts, minutes and shared recipes/links, a members roster with Goodreads links, and a filterable Recipes page.
+Static front end (`index.html`, `claude-shim.js`) + a Pages Function (`functions/api/[[path]].js`) backed by D1.
+Sign-in is Cloudflare Access (email one-time PIN). Each person can edit only their own reviews, votes and profile; everything else is shared.
 
-## Important: this is source code, not a standalone site
+## Setup (once)
+1. Cloudflare dashboard → Storage & Databases → D1 → create `bookclub`. Open its Console, paste `schema.sql`, run. Then paste your private `seed.sql` (past books/meetings) and run.
+2. Workers & Pages → Create → Pages → Connect to Git → this repo. Build command: none. Output directory: `bhambookclub` (or set root to `bhambookclub`).
+3. Pages project → Settings → Bindings → add D1 binding, variable name `DB` → `bookclub`.
+4. Zero Trust → Access → Applications → Add self-hosted → your Pages domain. Policy: Allow, emails = your friends' addresses. Login method: One-time PIN. Copy the application's **AUD tag** and your team domain (`xxx.cloudflareaccess.com`).
+5. Pages → Settings → Variables: `ACCESS_TEAM_DOMAIN` = team domain, `ACCESS_AUD` = AUD tag. Secret `ID_MAP` = `{"you@email.com":"u_57rBBjKReETUQOGVTHEdtg"}` so your existing reviews/attendance attach to you. Optional `ADMIN_EMAILS`.
+6. Redeploy. Visit the site, sign in, pick your display name.
 
-`index.html` is the exact page published as a Claude artifact. It stores votes, reviews, meetings and the roster in the artifact's built-in database and signs members in through Claude (`claude.use("db")`, `claude.use("user")`). Outside that environment, for example on GitHub Pages, it loads but shows a "shared data isn't available" message.
+## Local tests
+`node --no-warnings test.mjs` (needs Node 22; uses a seed.sql next to it).
 
-No club data is stored in this repo. The data lives in the artifact's database.
-
-Running it from GitHub Pages would need a rewrite against a real backend (for example Firebase or Supabase) for the database and sign-in.
+`claude-artifact/index.html` is the original version for the Claude artifact runtime.
