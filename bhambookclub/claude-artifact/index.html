@@ -482,7 +482,7 @@ function meetingDetail(id){
   const b=m.bookId&&S.books[m.bookId],att=m.attendees||[],items=m.items||[];
   const ros=roster();
   return `${head(b?esc(b.title):'Club meeting',esc(fmtDay(m.at))+' '+esc(fmtTime(m.at))+(m.location?' · '+esc(m.location):'')+(m.host?' · hosted by '+esc(m.host):''))}
-  <div class="row" style="margin-top:10px">${b?`<button class="btn s" data-act="open-book" data-id="${b.id}">View book</button>`:''}<button class="btn s" data-act="edit-meeting" data-id="${id}">Edit details</button></div>
+  <div class="row" style="margin-top:10px">${b?`<button class="btn s" data-act="open-book" data-id="${m.bookId}">View book</button>`:''}<button class="btn s" data-act="edit-meeting" data-id="${id}">Edit details</button></div>
   <hr><h3>Who came</h3><div class="chips" style="margin-top:8px">${ros.map(e=>`<button class="pill ${e.ids.some(i=>att.includes(i))?'on':''}" data-act="toggle-att" data-id="${id}" data-u="${esc(e.id)}">${avatar(e.id)}${esc(e.name)}</button>`).join('')||'<span class="mute">No members yet. Add people on the Members page.</span>'}</div>
   <label class="f">Guests (names, optional)<input type="text" id="guestTxt" data-change="guests" value="${esc(m.guests||'')}" placeholder="Plus-ones, visitors…"></label>
   <hr><h3>Meeting minutes</h3>
