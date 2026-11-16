@@ -1,6 +1,6 @@
 # Book Club site (Cloudflare Pages + D1 + Access)
 
-Static front end (`index.html`, `claude-shim.js`) + a Pages Function (`functions/api/[[path]].js`) backed by D1.
+Static front end (`index.html`, `claude-shim.js`) + a Pages Function (`/functions/api/[[path]].js`, at the repo root so Cloudflare finds it) backed by D1.
 Sign-in is Cloudflare Access (email one-time PIN). Each person can edit only their own reviews, votes and profile; everything else is shared.
 
 ## Setup (once)

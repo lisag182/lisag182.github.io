@@ -1,6 +1,6 @@
 import {DatabaseSync} from 'node:sqlite';
 import fs from 'fs';
-import {onRequest} from './functions/api/[[path]].js';
+import {onRequest} from '../functions/api/[[path]].js';
 const sql=new DatabaseSync(':memory:');
 sql.exec(fs.readFileSync('schema.sql','utf8'));
 sql.exec(fs.readFileSync('seed.sql','utf8'));
