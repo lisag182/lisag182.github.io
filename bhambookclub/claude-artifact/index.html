@@ -122,7 +122,7 @@ details summary{cursor:pointer;color:var(--acc);font-size:13px}
 <header class="top"><div class="top-in">
   <button class="brand" data-act="rename-club" aria-label="Club settings"><small>Book club</small><span id="clubName">Our Book Club</span></button>
   <nav class="tabs" id="nav">
-    <a href="#home" data-v="home">Home</a><a href="#polls" data-v="polls">Polls</a><a href="#books" data-v="books">Books</a><a href="#rankings" data-v="rankings">Rankings</a><a href="#meetings" data-v="meetings">Meetings</a><a href="#members" data-v="members">Members</a><a href="#recipes" data-v="recipes">Recipes</a>
+    <a href="#home" data-v="home">Home</a><a href="#polls" data-v="polls">Polls</a><a href="#meetings" data-v="meetings">Meetings</a><a href="#books" data-v="books">Books</a><a href="#rankings" data-v="rankings">Rankings</a><a href="#members" data-v="members">Members</a><a href="#recipes" data-v="recipes">Recipes</a>
   </nav>
 </div></header>
 <main id="main"></main>
@@ -285,9 +285,6 @@ function vHome(){
     <div class="tile"><b style="font-size:20px;text-transform:capitalize">${top?esc(top[0]):'–'}</b><span>Top genre</span></div>
   </div>
   <div class="row">
-    <button class="btn primary" data-act="new-poll">New book poll</button>
-    <button class="btn" data-act="new-sched">Find a meeting date</button>
-    <button class="btn" data-act="log-meeting">Log a meeting</button>
   </div>
   ${todo.length?`<div class="card"><h3>Needs your vote</h3><div class="chips" style="margin-top:8px">${todo.join('')}</div></div>`:''}
   <div class="grid">
@@ -306,10 +303,8 @@ function vPolls(){
   const openS=ss.filter(s=>s.status==='open'),oldS=ss.filter(s=>s.status!=='open');
   return `<div class="stack">
   <div class="row spread"><h2>Polls & scheduling</h2><div class="row"><button class="btn primary" data-act="new-poll">New book poll</button><button class="btn" data-act="new-sched">Find a date</button></div></div>
-  <h3>Choosing the next book</h3>
-  ${openP.map(pollCard).join('')||'<div class="card empty">No open book polls. Start one and let everyone pitch their picks.</div>'}
-  <h3>Finding a meeting time</h3>
-  ${openS.map(schedCard).join('')||'<div class="card empty">No open date polls.</div>'}
+  ${openP.map(pollCard).join('')}
+  ${openS.map(schedCard).join('')}
   ${oldP.length||oldS.length?`<h3>Past polls</h3>${oldP.map(pollCard).join('')}${oldS.map(schedCard).join('')}`:''}
   </div>`;
 }
@@ -382,9 +377,9 @@ function meetingRow(m,showBtn){
 function vMeetings(){
   const ms=meetings(),up=ms.filter(isUpcoming),past=ms.filter(m=>!isUpcoming(m)).reverse();
   const att={};roster().forEach(e=>{const n=past.filter(m=>(m.attendees||[]).some(a=>e.ids.includes(a))).length;if(n)att[e.id]=n});
-  return `<div class="stack"><div class="row spread"><h2>Meetings</h2><div class="row"><button class="btn primary" data-act="log-meeting">Add meeting</button><button class="btn" data-act="new-sched">Find a date</button></div></div>
+  return `<div class="stack"><div class="row spread"><h2>Meetings</h2></div>
   ${up.length?`<div class="card"><h3>Upcoming</h3>${up.map(m=>meetingRow(m)).join('')}</div>`:''}
-  <div class="card"><h3>Past meetings</h3>${past.length?past.map(m=>meetingRow(m)).join(''):'<p class="mute">No past meetings logged yet. Use “Add meeting” to backfill your history.</p>'}</div>
+  <div class="card"><h3>Past meetings</h3>${past.length?past.map(m=>meetingRow(m)).join(''):'<p class="mute">No past meetings logged yet. Meetings appear here once a date poll is locked in.</p>'}</div>
   ${Object.keys(att).length?`<div class="card"><h3>Attendance</h3>${Object.entries(att).sort((a,b)=>b[1]-a[1]).map(([u,n])=>`<div class="item" style="align-items:center">${avatar(u)}<div class="grow">${esc(nm(u))}</div><b>${n}</b><span class="tiny mute">of ${past.length}</span></div>`).join('')}</div>`:''}
   </div>`;
 }
@@ -495,7 +490,7 @@ function meetingDetail(id){
   const ros=roster();
   return `${head(b?esc(b.title):'Club meeting',esc(fmtDay(m.at))+' '+esc(fmtTime(m.at))+(m.location?' · '+esc(m.location):'')+(m.host?' · hosted by '+esc(m.host):''))}
   <div class="row" style="margin-top:10px">${b?`<button class="btn s" data-act="open-book" data-id="${m.bookId}">View book</button>`:''}<button class="btn s" data-act="edit-meeting" data-id="${id}">Edit details</button></div>
-  <hr><h3>Who came</h3><div class="chips" style="margin-top:8px">${ros.map(e=>`<button class="pill ${e.ids.some(i=>att.includes(i))?'on':''}" data-act="toggle-att" data-id="${id}" data-u="${esc(e.id)}">${avatar(e.id)}${esc(e.name)}</button>`).join('')||'<span class="mute">No members yet. Add people on the Members page.</span>'}</div>
+  <hr><h3>Who came</h3><div class="chips" style="margin-top:8px">${ros.map(e=>`<button class="pill ${e.ids.some(i=>att.includes(i))?'on':''}" data-act="toggle-att" data-id="${id}" data-u="${esc(e.id)}">${avatar(e.id)}${esc(e.name)}</button>`).join('')||'<span class="mute">No members yet.</span>'}</div>
   <label class="f">Guests (names, optional)<input type="text" id="guestTxt" data-change="guests" value="${esc(m.guests||'')}" placeholder="Plus-ones, visitors…"></label>
   <hr><h3>Meeting minutes</h3>
   <textarea id="minTxt" style="min-height:140px;margin-top:8px" placeholder="Discussion highlights, favorite quotes, what we decided…">${esc(m.minutes||'')}</textarea>
@@ -600,8 +595,8 @@ function renameClub(){openModal(()=>`${head('Club settings')}
 function vMembers(){
   const held=meetings().filter(m=>!isUpcoming(m)).length;
   const rows=roster().map(e=>({e,s:stats(e)})).sort((a,b)=>b.s.att.length-a.s.att.length||a.e.name.localeCompare(b.e.name));
-  return `<div class="stack"><div class="row spread"><h2>Members</h2><button class="btn primary" data-act="add-person">Add a member</button></div>
-  <div class="tiny mute">People who sign in show up here on their own. Add anyone who hasn’t, so their attendance still counts.</div>
+  return `<div class="stack"><div class="row spread"><h2>Members</h2></div>
+  <div class="tiny mute">People who sign in show up here on their own.</div>
   ${rows.length?`<div class="grid">${rows.map(({e,s})=>{const g=grLink(e);return `<div class="card bookcard" data-act="open-member" data-id="${esc(e.id)}" role="button" tabindex="0">${avatar(e.id)}<div class="grow"><h3>${esc(e.name)}${e.id===me?' <span class="tiny mute">(you)</span>':''}</h3>${g?`<div class="tiny"><a href="${esc(g)}" target="_blank" rel="noopener noreferrer">Goodreads profile</a></div>`:''}<div class="sm mute" style="margin-top:6px">${s.att.length} of ${held} meetings · ${plural(s.reviewed.length,'review')}${s.hosted.length?' · hosted '+s.hosted.length:''}</div></div></div>`}).join('')}</div>`:'<div class="card empty">No members yet.</div>'}
   </div>`;
 }
