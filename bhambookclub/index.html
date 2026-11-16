@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Book Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f0e4;--card:#fffdf7;--ink:#2b2218;--mute:#7a6c58;--line:#e5d9c3;--acc:#2f5d50;--acc-ink:#fff;--warm:#b4532e;--gold:#c9922b;--soft:#efe6d2;--r:14px}
+@media(prefers-color-scheme:dark){:root{--bg:#1b1713;--card:#251f19;--ink:#f1e8d8;--mute:#a69a86;--line:#3b3228;--acc:#6fae9a;--acc-ink:#12201b;--warm:#e58b62;--gold:#e0b04e;--soft:#2e2720}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif}
+body.noscroll{overflow:hidden}
+h1,h2,h3,.serif{font-family:Fraunces,Georgia,serif;font-weight:600;letter-spacing:-.01em;margin:0}
+h2{font-size:22px;margin-bottom:10px}h3{font-size:17px}
+a{color:var(--acc)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+header.top{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-in{max-width:980px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:16px}
+.brand{font-family:Fraunces,Georgia,serif;font-size:20px;font-weight:700;background:none;border:0;padding:0;text-align:left;color:var(--ink)}
+.brand small{display:block;font:500 11px Inter;color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+nav.tabs{display:flex;gap:4px;margin-left:auto}
+nav.tabs a{padding:7px 12px;border-radius:999px;text-decoration:none;color:var(--mute);font-weight:500}
+nav.tabs a.on{background:var(--acc);color:var(--acc-ink)}
+@media(max-width:700px){
+ nav.tabs{position:fixed;left:0;right:0;bottom:0;margin:0;background:var(--card);border-top:1px solid var(--line);justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:30}
+ nav.tabs a{padding:8px 3px;font-size:11.5px;border-radius:10px;flex:1 1 auto;text-align:center}nav.tabs{overflow-x:auto}
+}
+main{max-width:980px;margin:0 auto;padding:18px 16px 110px}
+.banner{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:14px;color:var(--mute);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.stack>*+*{margin-top:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spread{justify-content:space-between}
+.grow{flex:1;min-width:0}
+.mute{color:var(--mute)}.sm{font-size:13px}.tiny{font-size:12px}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 14px;font-weight:500}
+.btn:hover{border-color:var(--acc)}
+.btn.primary{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.btn.danger{color:var(--warm)}
+.btn.danger.armed{background:var(--warm);color:#fff;border-color:var(--warm)}
+.btn.s{padding:4px 10px;font-size:13px;border-radius:8px}
+.btn.ghost{background:none}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;background:var(--soft);border:1px solid var(--line);font-size:12px;color:var(--ink);text-transform:capitalize;white-space:nowrap}
+button.chip{cursor:pointer}
+.chip.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.chip.st{text-transform:none;background:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:none;border-radius:999px;padding:5px 12px;color:var(--mute);font-weight:500;font-size:14px}
+.seg button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.tile b{display:block;font:600 26px Fraunces,Georgia,serif}
+.tile span{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+.cover{--h:150;width:56px;height:80px;border-radius:3px 7px 7px 3px;flex:none;background:linear-gradient(160deg,hsl(var(--h) 38% 38%),hsl(calc(var(--h) + 30) 42% 25%));box-shadow:inset 3px 0 0 #0003,0 2px 6px #0003;color:#fff;font:600 9px/1.15 Fraunces,Georgia,serif;padding:7px 6px 6px 9px;overflow:hidden;display:flex;align-items:flex-end}
+.cover span{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;opacity:.92}
+.cover.lg{width:84px;height:120px;font-size:12px;padding:10px 8px 8px 13px}
+.cover.xs{width:34px;height:48px;font-size:6px;padding:4px 3px 3px 6px}
+.bookcard{display:flex;gap:12px;text-align:left;width:100%;cursor:pointer}
+.bookcard:hover{border-color:var(--acc)}
+.bookcard h3{font-size:16px;line-height:1.25}
+.stars{color:var(--gold);letter-spacing:1px;white-space:nowrap}.stars i{font-style:normal;color:var(--line)}
+.av{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;color:#fff;font:600 10px Inter;flex:none;border:2px solid var(--card)}
+.avs{display:inline-flex}.avs .av+.av{margin-left:-8px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+input[type=text],input[type=search],input[type=url],input[type=date],input[type=month],input[type=number],input[type=datetime-local],select,textarea{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:-1px}
+textarea{min-height:90px;resize:vertical}
+.toolbar input{flex:1;min-width:180px;width:auto}.toolbar select{width:auto}
+label.f{display:block;margin-top:12px;font-weight:500;font-size:13px}
+label.f>*{margin-top:4px;font-weight:400}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;position:relative;overflow:hidden}
+.opt .bar{position:absolute;inset:0 auto 0 0;background:var(--soft);z-index:0;transition:width .3s}
+.opt>*:not(.bar){position:relative;z-index:1}
+.opt[data-act]{cursor:pointer}
+.opt.mine{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+.opt.win{border-color:var(--gold);box-shadow:inset 0 0 0 2px var(--gold)}
+.tick{width:20px;height:20px;border-radius:6px;border:2px solid var(--line);display:inline-grid;place-items:center;flex:none;font-size:13px;line-height:1;background:var(--card)}
+.mine .tick{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+.slotbtn{min-width:64px;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:6px 10px;font-weight:600}
+.slotbtn.yes{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.slotbtn.maybe{background:var(--gold);color:#222;border-color:var(--gold)}
+.slot.best{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+.slot{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--card)}
+.datebadge{width:54px;text-align:center;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex:none;background:var(--card)}
+.datebadge b{display:block;font:600 20px/1.2 Fraunces,Georgia,serif}
+.datebadge span{display:block;background:var(--warm);color:#fff;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:1px 0}
+.pill{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 12px 4px 5px;display:inline-flex;gap:6px;align-items:center;font-size:14px}
+.pill.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.pill .av{border-color:transparent}
+.rank{font:600 24px Fraunces,Georgia,serif;width:30px;text-align:center;color:var(--mute)}
+.meter{height:6px;background:var(--soft);border-radius:4px;overflow:hidden}.meter>i{display:block;height:100%;background:var(--gold)}
+.pre{white-space:pre-wrap;overflow-wrap:anywhere}
+.star{background:none;border:0;font-size:30px;line-height:1;color:var(--line);padding:0 2px}.star.on{color:var(--gold)}
+.scrim{position:fixed;inset:0;background:#0008;display:flex;align-items:flex-end;justify-content:center;z-index:50}
+.sheet{background:var(--card);width:100%;max-width:660px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:20px 18px 28px}
+@media(min-width:700px){.scrim{align-items:center}.sheet{border-radius:20px}}
+.sheet hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+.x{margin-left:auto;background:none;border:0;font-size:24px;color:var(--mute);line-height:1}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:90px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:90;max-width:90vw}
+.empty{text-align:center;padding:28px 12px;color:var(--mute)}
+.item{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.item:first-child{border-top:0}
+details summary{cursor:pointer;color:var(--acc);font-size:13px}
+.hide{display:none!important}
+.scale{display:flex;gap:6px;align-items:center}.scale input[type=range]{flex:1;min-width:120px;accent-color:var(--gold);padding:0;height:34px}.scale input.unset{opacity:.4}.sval{min-width:42px;text-align:center;font:600 18px Fraunces,Georgia,serif}
+.sc{width:36px;height:36px;flex:none;font-size:18px;line-height:1;border-radius:10px;border:1px solid var(--line);background:var(--card);font-weight:600}
+.sc.on{background:var(--gold);color:#222;border-color:var(--gold)}
+.catq{margin-top:12px}.catq>.sm{font-weight:500;margin-bottom:4px}
+.catline{display:flex;align-items:center;gap:10px;margin-top:6px}.catline .l{width:130px;font-size:13px}.catline .meter{flex:1}.catline b{width:28px;text-align:right;font-size:13px}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <button class="brand" data-act="rename-club" aria-label="Club settings"><small>Book club</small><span id="clubName">Our Book Club</span></button>
+  <nav class="tabs" id="nav">
+    <a href="#home" data-v="home">Home</a><a href="#polls" data-v="polls">Polls</a><a href="#books" data-v="books">Books</a><a href="#rankings" data-v="rankings">Rankings</a><a href="#meetings" data-v="meetings">Meetings</a><a href="#members" data-v="members">Members</a><a href="#recipes" data-v="recipes">Recipes</a>
+  </nav>
+</div></header>
+<main id="main"></main>
+<div id="modalRoot"></div>
+<div id="toast" class="toast hide" role="status"></div>
+
+<script>
+(function(){
+'use strict';
+/* ---------- helpers ---------- */
+const $=(s,el=document)=>el.querySelector(s);
+const $$=(s,el=document)=>[...el.querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clone=o=>JSON.parse(JSON.stringify(o==null?{}:o));
+const rid=()=>Math.random().toString(36).slice(2,9);
+const pad=n=>String(n).padStart(2,'0');
+const hue=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))%360;return h};
+const initials=n=>(n||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase()||'?';
+const safeUrl=u=>{u=(u||'').trim();if(/^https?:\/\//i.test(u))return u;if(/^[\w-]+(\.[\w-]+)+(\/|$)/.test(u))return 'https://'+u;return ''};
+const parseTags=s=>[...new Set(String(s||'').split(',').map(t=>t.trim().toLowerCase()).filter(Boolean))].slice(0,12);
+const plural=(n,w)=>n+' '+w+(n===1?'':'s');
+const STATUS={read:'Read',reading:'Reading now',upcoming:'Up next',someday:'Someday'};
+const DEFAULT_CATS=[{id:'prose',label:'Writing & prose'},{id:'characters',label:'Character development'},{id:'plot',label:'Plot & pacing'},{id:'originality',label:'Originality'}];
+const CAT_IDEAS=['Themes & ideas','Emotional impact','Setting & atmosphere','Ending','Dialogue','Worldbuilding','Discussability','Page-turner factor'];
+const COURSES=['appetizer','entree','side','dessert','drink','snack'];
+const DIETS=['vegetarian','vegan','dairy-free','contains dairy','gluten-free','contains nuts'];
+const GENRES=['fiction','literary','mystery','thriller','romance','fantasy','sci-fi','historical','nonfiction','memoir','biography','essays','horror','classic','humor','young adult','poetry','graphic novel'];
+
+function dateObj(s){if(!s)return null;const d=new Date(s.length===7?s+'-01T00:00':s.length===10?s+'T00:00':s);return isNaN(d)?null:d}
+function fmtDay(s){const d=dateObj(s);return d?d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'}):''}
+function fmtTime(s){const d=dateObj(s);return d&&s.length>10?d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):''}
+function fmtMonth(s){const d=dateObj(s);return d?d.toLocaleDateString(undefined,{month:'long',year:'numeric'}):''}
+function badge(s){const d=dateObj(s);return d?`<div class="datebadge"><span>${d.toLocaleDateString(undefined,{month:'short'})}</span><b>${d.getDate()}</b></div>`:''}
+const stars=v=>{const r=Math.round(v||0);return `<span class="stars" aria-label="${v?fmt(v):'No'} out of 5">${'★'.repeat(r)}<i>${'★'.repeat(5-r)}</i></span>`};
+
+/* ---------- state ---------- */
+const COLS=['books','meetings','polls','schedules','members','reviews','ballots','people'];
+const S={books:{},meetings:{},polls:{},schedules:{},members:{},reviews:{},ballots:{},people:{}};
+let club={name:'Our Book Club',cats:null};
+let db=null,user=null,me=null,canWrite=true,slow=false,failed=false;
+const loaded={};let names={};const asked=new Set();
+let view='home';
+const F={q:'',status:'all',tags:new Set(),sort:'recent'};
+let modal=null;let rv={bid:null,rating:null,cats:{}};let rankBy='overall';const RF={q:'',course:'',diet:new Set()};let itemDraft={tags:[]},rd={tags:[]};
+
+/* ---------- data access ---------- */
+const chains={};
+function put(path,data,mode){
+  const run=()=>db.doc(path)[mode||'set'](clone(data));
+  const p=(chains[path]||Promise.resolve()).catch(()=>{}).then(run);
+  chains[path]=p;
+  return p.then(()=>true,e=>{toast(e&&e.code==='quota_exceeded'?'The club database is full.':'Couldn’t save. You may need Contributor access to edit.');return false});
+}
+const upd=(p,d)=>put(p,d,'update');
+function del(path){const p=(chains[path]||Promise.resolve()).catch(()=>{}).then(()=>db.doc(path).delete());chains[path]=p;return p.then(()=>true,()=>{toast('Couldn’t delete.');return false})}
+const newId=col=>db.collection(col).doc().id;
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.remove('hide');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.add('hide'),3500)}
+
+const canon=id=>(S.people[id]&&S.people[id].uid)||id;
+const nm=id=>{id=canon(id);const p=S.people[id];if(p&&p.name)return p.name;if(names[id])return names[id];const c=Object.values(S.people).find(x=>x.uid===id&&x.name);return c?c.name:(id===me?'You':'Member')};
+const known=id=>!!(S.people[id]||S.members[id]||id===me||names[id]);
+function avatar(id){const n=nm(id);return `<span class="av" title="${esc(n)}" style="background:hsl(${hue(canon(id))} 45% 42%)">${esc(initials(n))}</span>`}
+const avs=ids=>(ids=[...new Set(ids.map(canon))].filter(known)).length?`<span class="avs">${ids.slice(0,6).map(avatar).join('')}</span>${ids.length>6?`<span class="tiny mute"> +${ids.length-6}</span>`:''}`:'';
+
+const books=()=>Object.entries(S.books).map(([id,b])=>({id,...b}));
+const meetings=()=>Object.entries(S.meetings).map(([id,m])=>({id,...m})).sort((a,b)=>(a.at||'').localeCompare(b.at||''));
+const isUpcoming=m=>{const d=dateObj(m.at);return d&&d.getTime()>Date.now()-5*3600e3};
+const meetingsFor=bid=>meetings().filter(m=>m.bookId===bid);
+function bookDate(b){const ms=meetingsFor(b.id);if(ms.length)return ms[ms.length-1].at;return b.readOn||(b.createdAt?new Date(b.createdAt).toISOString():'')}
+function reviewsFor(bid){return Object.entries(S.reviews).map(([uid,d])=>d&&d.items&&d.items[bid]?{uid,...d.items[bid]}:null).filter(Boolean)}
+function avg(bid){const r=reviewsFor(bid).filter(x=>x.rating!=null);return r.length?r.reduce((a,x)=>a+x.rating,0)/r.length:null}
+const catsList=()=>club.cats&&club.cats.length?club.cats:DEFAULT_CATS;
+function catVals(bid,k){return reviewsFor(bid).map(r=>k==='overall'?r.rating:(r.cats&&r.cats[k])).filter(x=>x!=null)}
+function avgBy(bid,k){const v=catVals(bid,k);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null}
+const fmt=v=>String(+Number(v).toFixed(2));
+const clampQ=v=>Math.round(Math.min(5,Math.max(0,v))*4)/4;
+const scale=(k,cur)=>`<div class="scale"><button class="sc" data-act="nudge" data-k="${k}" data-d="-0.25" aria-label="Down a quarter point">\u2212</button><input type="range" min="0" max="5" step="0.25" value="${cur==null?2.5:cur}" class="${cur==null?'unset':''}" data-k="${k}" aria-label="Score out of 5"><button class="sc" data-act="nudge" data-k="${k}" data-d="0.25" aria-label="Up a quarter point">+</button><span class="sval" data-out="${k}">${cur==null?'\u2013':fmt(cur)}</span>${k!=='overall'&&cur!=null?`<button class="btn s ghost" data-act="rate-clear" data-k="${k}">Clear</button>`:''}</div>`;
+const myBallot=()=>S.ballots[me]||{};
+const votersOf=pid=>Object.entries(S.ballots).filter(([,b])=>b.polls&&b.polls[pid]&&b.polls[pid].length).map(([u])=>u);
+const slotVotes=(sid,slot)=>{const y=[],m=[];Object.entries(S.ballots).forEach(([u,b])=>{const v=b.slots&&b.slots[sid]&&b.slots[sid][slot];if(v==='yes')y.push(u);else if(v==='maybe')m.push(u)});return{y,m}};
+const allTags=()=>{const c={};books().forEach(b=>(b.tags||[]).forEach(t=>c[t]=(c[t]||0)+1));return c};
+const memberIds=()=>{const s=new Set(Object.keys(S.members));if(me)s.add(me);return [...s]};
+function roster(){
+  const claims={};Object.entries(S.people).forEach(([pid,p])=>{if(p.uid)(claims[p.uid]=claims[p.uid]||[]).push(pid)});
+  const out=memberIds().map(u=>({id:u,kind:'member',ids:[u,...(claims[u]||[])]}));
+  Object.entries(S.people).forEach(([pid,p])=>{if(!p.uid)out.push({id:pid,kind:'person',ids:[pid]})});
+  return out.map(e=>({...e,name:nm(e.id)}));
+}
+const rosterEntry=id=>roster().find(e=>e.ids.includes(id));
+function grLink(e){let g=e.kind==='member'?((S.members[e.id]||{}).goodreads||''):'';if(!g)e.ids.forEach(i=>{if(!g&&S.people[i]&&S.people[i].goodreads)g=S.people[i].goodreads});return safeUrl(g)}
+function stats(e){
+  const ms=meetings(),att=ms.filter(m=>(m.attendees||[]).some(a=>e.ids.includes(a)));
+  const rvs=e.kind==='member'?((S.reviews[e.id]&&S.reviews[e.id].items)||{}):{};
+  const reviewed=Object.keys(rvs).filter(b=>S.books[b]);
+  const read=new Set(reviewed);att.forEach(m=>{if(m.bookId&&S.books[m.bookId])read.add(m.bookId)});
+  const hosted=ms.filter(m=>m.host&&m.host.trim().toLowerCase()===e.name.toLowerCase());
+  const ratings=reviewed.map(b=>rvs[b].rating).filter(x=>x!=null);
+  return{att,reviewed,rv:rvs,read:[...read],hosted,avg:ratings.length?ratings.reduce((a,b)=>a+b,0)/ratings.length:null};
+}
+const hostList=()=>`<datalist id="rosterNames">${[...new Set(roster().map(e=>e.name).filter(n=>n&&n!=='Member'))].map(n=>`<option value="${esc(n)}">`).join('')}</datalist>`;
+
+async function resolveNames(){
+  if(!user||!user.profiles)return;
+  const ids=new Set([...Object.keys(S.members),...Object.keys(S.reviews),...Object.keys(S.ballots)]);
+  Object.values(S.meetings).forEach(m=>(m.attendees||[]).forEach(i=>ids.add(i)));
+  if(me)ids.add(me);
+  const need=[...ids].filter(i=>!asked.has(i)&&!S.people[i]);if(!need.length)return;
+  need.forEach(i=>asked.add(i));
+  try{const ps=await user.profiles(need);let ch=false;need.forEach(i=>{const n=ps&&ps[i]&&ps[i].name;if(n&&names[i]!==n){names[i]=n;ch=true}});if(ch)schedule()}catch(e){}
+}
+
+/* ---------- rendering scheduler ---------- */
+let raf=0;function schedule(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;render()})}
+const allLoaded=()=>COLS.every(c=>loaded[c]);
+
+function render(){
+  document.title=club.name;$('#clubName').textContent=club.name;
+  $$('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===view));
+  const main=$('#main');
+  if(!db){main.innerHTML=`<div class="card empty">${failed?'The club’s shared data isn’t available in this view. Open the page from its link while signed in.':'Loading…'}</div>`;return}
+  if(!allLoaded()&&!slow){if(!$('#loadnote'))main.innerHTML='<div id="loadnote" class="card empty">Loading the club…</div>';return}
+  if(view==='books'){if(!$('#results'))buildBooksShell();updateBooks()}
+  else if(view==='recipes'){if(!$('#rresults'))buildRecipesShell();updateRecipes()}
+  else main.innerHTML=banner()+({home:vHome,polls:vPolls,rankings:vRankings,meetings:vMeetings,members:vMembers}[view]||vHome)();
+  if(modal&&modal.live)drawModal();
+}
+function banner(){
+  if(slow&&!allLoaded())return '<div class="banner">Having trouble reaching the club’s data. What you see may be out of date.</div>';
+  if(!me)return '<div class="banner">You’re viewing as a guest. Sign in with a club account to vote and add reviews.</div>';
+  if(!canWrite)return '<div class="banner">You have view-only access. Ask the organizer to make you a Contributor so you can vote, review and add to the club.</div>';
+  return '';
+}
+const cover=(b,cls='')=>`<div class="cover ${cls}" style="--h:${hue((b.title||'')+(b.author||''))}"><span>${esc(b.title)}</span></div>`;
+const tagChips=(tags,act)=>(tags||[]).map(t=>act?`<button class="chip ${F.tags.has(t)?'on':''}" data-act="tag-filter" data-t="${esc(t)}">${esc(t)}</button>`:`<span class="chip">${esc(t)}</span>`).join('');
+
+/* ---------- HOME ---------- */
+function vHome(){
+  const bs=books(),read=bs.filter(b=>b.status==='read');
+  const rated=read.map(b=>avg(b.id)).filter(a=>a!=null);
+  const mAll=meetings(),past=mAll.filter(m=>!isUpcoming(m)),next=mAll.find(isUpcoming);
+  const tc={};read.forEach(b=>(b.tags||[]).forEach(t=>tc[t]=(tc[t]||0)+1));
+  const top=Object.entries(tc).sort((a,b)=>b[1]-a[1])[0];
+  const cur=bs.find(b=>b.status==='reading')||bs.find(b=>b.status==='upcoming');
+  const todo=[];
+  Object.entries(S.polls).filter(([,p])=>p.status==='open').forEach(([id,p])=>{if(!((myBallot().polls||{})[id]||[]).length)todo.push(`<a class="chip st" href="#polls">Vote: ${esc(p.title)}</a>`)});
+  Object.entries(S.schedules).filter(([,s])=>s.status==='open').forEach(([id,s])=>{if(!Object.keys((myBallot().slots||{})[id]||{}).length)todo.push(`<a class="chip st" href="#polls">Availability: ${esc(s.title)}</a>`)});
+  const recent=Object.entries(S.reviews).flatMap(([uid,d])=>Object.entries((d&&d.items)||{}).map(([bid,r])=>({uid,bid,...r}))).filter(r=>S.books[r.bid]).sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,4);
+  return `<div class="stack">
+  <div class="tiles">
+    <div class="tile"><b>${read.length}</b><span>Books read</span></div>
+    <div class="tile"><b>${past.length}</b><span>Meetings held</span></div>
+    <div class="tile"><b>${rated.length?fmt(rated.reduce((a,b)=>a+b,0)/rated.length):'–'}</b><span>Avg rating</span></div>
+    <div class="tile"><b style="font-size:20px;text-transform:capitalize">${top?esc(top[0]):'–'}</b><span>Top genre</span></div>
+  </div>
+  <div class="row">
+    <button class="btn primary" data-act="new-poll">New book poll</button>
+    <button class="btn" data-act="new-sched">Find a meeting date</button>
+    <button class="btn" data-act="add-book">Add a book</button>
+    <button class="btn" data-act="log-meeting">Log a meeting</button>
+  </div>
+  ${todo.length?`<div class="card"><h3>Needs your vote</h3><div class="chips" style="margin-top:8px">${todo.join('')}</div></div>`:''}
+  <div class="grid">
+    <div class="card"><h3>Next meeting</h3>${next?meetingRow(next,false):'<p class="mute">Nothing scheduled. Start a date poll to find a time that works.</p>'}</div>
+    <div class="card"><h3>${cur&&cur.status==='reading'?'Reading now':'Up next'}</h3>${cur?`<div class="bookcard" style="margin-top:10px" data-act="open-book" data-id="${cur.id}">${cover(cur)}<div class="grow"><h3>${esc(cur.title)}</h3><div class="mute sm">${esc(cur.author||'')}</div><div class="chips" style="margin-top:6px">${tagChips(cur.tags)}</div></div></div>`:'<p class="mute">No book picked yet. Run a poll to choose one.</p>'}</div>
+  </div>
+  ${recent.length?`<div class="card"><h3>Recent reviews</h3>${recent.map(r=>`<div class="item" data-act="open-book" data-id="${r.bid}" style="cursor:pointer">${avatar(r.uid)}<div class="grow"><b>${esc(S.books[r.bid].title)}</b> ${stars(r.rating)}<div class="sm mute">${esc(nm(r.uid))}</div>${r.text?`<div class="pre sm">${esc(r.text.slice(0,180))}${r.text.length>180?'…':''}</div>`:''}</div></div>`).join('')}</div>`:''}
+  </div>`;
+}
+
+/* ---------- POLLS ---------- */
+function vPolls(){
+  const ps=Object.entries(S.polls).map(([id,p])=>({id,...p})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const ss=Object.entries(S.schedules).map(([id,s])=>({id,...s})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const openP=ps.filter(p=>p.status==='open'),oldP=ps.filter(p=>p.status!=='open');
+  const openS=ss.filter(s=>s.status==='open'),oldS=ss.filter(s=>s.status!=='open');
+  return `<div class="stack">
+  <div class="row spread"><h2>Polls & scheduling</h2><div class="row"><button class="btn primary" data-act="new-poll">New book poll</button><button class="btn" data-act="new-sched">Find a date</button></div></div>
+  <h3>Choosing the next book</h3>
+  ${openP.map(pollCard).join('')||'<div class="card empty">No open book polls. Start one and let everyone pitch their picks.</div>'}
+  <h3>Finding a meeting time</h3>
+  ${openS.map(schedCard).join('')||'<div class="card empty">No open date polls.</div>'}
+  ${oldP.length||oldS.length?`<h3>Past polls</h3>${oldP.map(pollCard).join('')}${oldS.map(schedCard).join('')}`:''}
+  </div>`;
+}
+function pollCard(p){
+  const voters=votersOf(p.id),mine=((myBallot().polls||{})[p.id])||[],open=p.status==='open';
+  const counts=(p.options||[]).map(o=>({o,v:voters.filter(u=>S.ballots[u].polls[p.id].includes(o.id))}));
+  const max=Math.max(1,...counts.map(c=>c.v.length));
+  return `<div class="card stack"><div class="row spread"><div><h3>${esc(p.title)}</h3><div class="tiny mute">${open?'Approval voting: tap every book you’d be happy to read. ':'Closed. '}${plural(voters.length,'voter')}${p.voteBy&&open?' · vote by '+esc(fmtDay(p.voteBy)):''}</div></div>${open?'':'<span class="chip st">Closed</span>'}</div>
+  ${counts.map(({o,v})=>`<div class="opt ${mine.includes(o.id)?'mine':''} ${!open&&p.winnerOpt===o.id?'win':''}" ${open?`role="button" tabindex="0" data-act="vote" data-p="${p.id}" data-o="${o.id}"`:''}>
+    <i class="bar" style="width:${Math.round(v.length/max*100)}%"></i>
+    <div class="row"><span class="tick">${mine.includes(o.id)?'✓':''}</span><div class="grow"><b>${esc(o.title)}</b> <span class="mute sm">${esc(o.author||'')}</span> <a class="tiny" href="${esc('https://www.goodreads.com/search?q='+encodeURIComponent(((o.title||'')+' '+(o.author||'')).trim()))}" target="_blank" rel="noopener noreferrer">Find on Goodreads</a>${o.tags&&o.tags.length?`<div class="chips" style="margin-top:4px">${tagChips(o.tags)}</div>`:''}${o.blurb?`<div class="sm mute">${esc(o.blurb)}</div>`:''}${o.by?`<div class="tiny mute">Pitched by ${esc(nm(o.by))}</div>`:''}</div><div style="text-align:right"><b>${v.length}</b><div>${avs(v)}</div></div></div></div>`).join('')}
+  <div class="row">${open?`<button class="btn primary s" data-act="close-poll" data-id="${p.id}">Close & pick winner</button>`:p.bookId&&S.books[p.bookId]?`<button class="btn s" data-act="open-book" data-id="${p.bookId}">View winning book</button>`:''}<button class="btn danger s" data-act="del-poll" data-id="${p.id}">Delete</button></div></div>`;
+}
+function slotScore(sid,slot){const v=slotVotes(sid,slot);return v.y.length*2+v.m.length}
+function schedCard(s){
+  const open=s.status==='open',slots=(s.slots||[]).slice().sort((a,b)=>a.at.localeCompare(b.at));
+  const mine=((myBallot().slots||{})[s.id])||{};
+  const best=Math.max(0,...slots.map(x=>slotScore(s.id,x.id)));
+  const responders=Object.values(S.ballots).filter(b=>b.slots&&b.slots[s.id]&&Object.keys(b.slots[s.id]).length).length;
+  const bk=s.bookId&&S.books[s.bookId];
+  return `<div class="card stack"><div class="row spread"><div><h3>${esc(s.title)}</h3><div class="tiny mute">${open?'Tap a time to cycle: yes, maybe, clear. ':'Locked in. '}${plural(responders,'response')}${bk?' · '+esc(bk.title):''}</div></div>${open?'':'<span class="chip st">Closed</span>'}</div>
+  ${slots.map(x=>{const v=slotVotes(s.id,x.id),m=mine[x.id];return `<div class="slot ${open&&best>0&&slotScore(s.id,x.id)===best?'best':''}"><div class="row"><div class="grow"><b>${esc(fmtDay(x.at))}</b> <span class="mute">${esc(fmtTime(x.at))}</span><div class="tiny mute">${v.y.length} yes · ${v.m.length} maybe</div><div>${avs(v.y.concat(v.m))}</div></div>${open?`<button class="slotbtn ${m||''}" data-act="slot" data-s="${s.id}" data-t="${x.id}">${m==='yes'?'✓ Yes':m==='maybe'?'~ Maybe':'Tap'}</button>`:s.chosenSlot===x.id?'<span class="chip on">Chosen</span>':''}</div></div>`}).join('')}
+  <div class="row">${open?`<button class="btn primary s" data-act="lock-sched" data-id="${s.id}">Lock in a date</button>`:s.meetingId&&S.meetings[s.meetingId]?`<button class="btn s" data-act="open-meeting" data-id="${s.meetingId}">View meeting</button>`:''}<button class="btn danger s" data-act="del-sched" data-id="${s.id}">Delete</button></div></div>`;
+}
+
+/* ---------- BOOKS ---------- */
+function buildBooksShell(){
+  $('#main').innerHTML=banner()+`<div class="stack"><div class="row spread"><h2>Library</h2><button class="btn primary" data-act="add-book">Add a book</button></div>
+  <div class="toolbar"><input id="q" type="search" placeholder="Search title, author or genre…" value="${esc(F.q)}"><select id="sort"><option value="recent">Most recent</option><option value="title">Title A–Z</option><option value="author">Author A–Z</option><option value="rating">Top rated</option></select></div>
+  <div class="seg" id="statusTabs"></div><div class="chips" id="tagBar"></div><div class="grid" id="results"></div></div>`;
+  $('#sort').value=F.sort;
+}
+function updateBooks(){
+  const all=books();
+  $('#statusTabs').innerHTML=[['all','All']].concat(Object.entries(STATUS)).map(([k,l])=>`<button class="${F.status===k?'on':''}" data-act="status-tab" data-k="${k}">${l} <span class="tiny">${k==='all'?all.length:all.filter(b=>b.status===k).length}</span></button>`).join('');
+  const tc=allTags(),keys=Object.keys(tc).sort((a,b)=>tc[b]-tc[a]||a.localeCompare(b));
+  $('#tagBar').innerHTML=keys.length?keys.map(t=>`<button class="chip ${F.tags.has(t)?'on':''}" data-act="tag-filter" data-t="${esc(t)}">${esc(t)} ${tc[t]}</button>`).join('')+(F.tags.size?'<button class="chip st" data-act="clear-tags">Clear</button>':''):'';
+  const q=F.q.trim().toLowerCase();
+  let list=all.filter(b=>(F.status==='all'||b.status===F.status)&&[...F.tags].every(t=>(b.tags||[]).includes(t))&&(!q||[b.title,b.author,(b.tags||[]).join(' '),b.blurb].join(' ').toLowerCase().includes(q)));
+  const by={title:(a,b)=>(a.title||'').localeCompare(b.title||''),author:(a,b)=>(a.author||'').localeCompare(b.author||''),rating:(a,b)=>(avg(b.id)||0)-(avg(a.id)||0),recent:(a,b)=>bookDate(b).localeCompare(bookDate(a))};
+  list.sort(by[F.sort]);
+  $('#results').innerHTML=list.length?list.map(b=>{const a=avg(b.id),n=reviewsFor(b.id).length;return `<div class="card bookcard" data-act="open-book" data-id="${b.id}" role="button" tabindex="0">${cover(b)}<div class="grow"><h3>${esc(b.title)}</h3><div class="mute sm">${esc(b.author||'')}</div><div class="chips" style="margin:6px 0">${tagChips(b.tags,true)}</div><div class="row sm">${a!=null?stars(a)+' <b>'+fmt(a)+'</b><span class="mute">('+n+')</span>':'<span class="mute">Not rated yet</span>'}<span class="chip st">${STATUS[b.status]||''}</span></div></div></div>`}).join(''):`<div class="card empty" style="grid-column:1/-1">${all.length?'No books match these filters.':'Your library is empty. Add the books you’ve read, or run a poll to pick the next one.'}</div>`;
+}
+
+/* ---------- RANKINGS ---------- */
+function vRankings(){
+  const cl=catsList();if(rankBy!=='overall'&&!cl.some(c=>c.id===rankBy))rankBy='overall';
+  const bs=books();
+  const rows=bs.map(b=>({b,a:avgBy(b.id,rankBy),n:catVals(b.id,rankBy).length})).filter(x=>x.a!=null).sort((x,y)=>y.a-x.a||y.n-x.n);
+  const per={};Object.entries(S.reviews).forEach(([u,d])=>Object.entries((d&&d.items)||{}).forEach(([bid,r])=>{if(S.books[bid]&&r.rating!=null)(per[u]=per[u]||[]).push(r.rating)}));
+  const ov=bs.map(b=>({b,a:avg(b.id),r:reviewsFor(b.id).filter(x=>x.rating!=null)})).filter(x=>x.a!=null);
+  const div=ov.filter(x=>x.r.length>=3).map(x=>({...x,sd:Math.sqrt(x.r.reduce((s,r)=>s+(r.rating-x.a)**2,0)/x.r.length)})).sort((a,b)=>b.sd-a.sd)[0];
+  const champs=cl.map(c=>{const t=bs.map(b=>({b,a:avgBy(b.id,c.id)})).filter(x=>x.a!=null).sort((x,y)=>y.a-x.a)[0];return t?{c,t}:null}).filter(Boolean);
+  return `<div class="stack"><h2>Club rankings</h2>
+  <div class="seg"><button class="${rankBy==='overall'?'on':''}" data-act="rank-by" data-k="overall">Overall</button>${cl.map(c=>`<button class="${rankBy===c.id?'on':''}" data-act="rank-by" data-k="${esc(c.id)}">${esc(c.label)}</button>`).join('')}</div>
+  ${rows.length?`<div class="card">${rows.map((x,i)=>`<div class="item" data-act="open-book" data-id="${x.b.id}" style="cursor:pointer;align-items:center"><div class="rank">${i+1}</div>${cover(x.b,'xs')}<div class="grow"><b>${esc(x.b.title)}</b><div class="sm mute">${esc(x.b.author||'')}</div><div class="meter" style="margin-top:6px;max-width:260px"><i style="width:${x.a/5*100}%"></i></div></div><div style="text-align:right"><b class="serif" style="font-size:20px">${fmt(x.a)}</b><div class="tiny mute">${plural(x.n,'rating')}</div></div></div>`).join('')}</div>`:'<div class="card empty">Rankings appear once members start rating books. Open a book in the library to leave the first review.</div>'}
+  ${champs.length&&rankBy==='overall'?`<div class="card"><h3>Category champions</h3>${champs.map(({c,t})=>`<div class="item" data-act="open-book" data-id="${t.b.id}" style="cursor:pointer;align-items:center"><div class="grow"><div class="tiny mute">${esc(c.label)}</div><b>${esc(t.b.title)}</b></div><b>${fmt(t.a)}</b></div>`).join('')}</div>`:''}
+  ${div&&div.sd>0.6?`<div class="card"><h3>Most divisive</h3><p style="margin:6px 0 0"><b>${esc(div.b.title)}</b>: overall scores ranged from ${fmt(Math.min(...div.r.map(r=>r.rating)))} to ${fmt(Math.max(...div.r.map(r=>r.rating)))}.</p></div>`:''}
+  ${Object.keys(per).length?`<div class="card"><h3>Who rates how</h3>${Object.entries(per).sort((a,b)=>b[1].length-a[1].length).map(([u,rs])=>`<div class="item" style="align-items:center">${avatar(u)}<div class="grow">${esc(nm(u))}</div><span class="tiny mute">${plural(rs.length,'review')}</span><b>${fmt(rs.reduce((a,b)=>a+b,0)/rs.length)} avg</b></div>`).join('')}</div>`:''}
+  </div>`;
+}
+
+/* ---------- MEETINGS ---------- */
+function meetingRow(m,showBtn){
+  const b=m.bookId&&S.books[m.bookId];
+  return `<div class="bookcard" style="margin-top:10px;align-items:center" data-act="open-meeting" data-id="${m.id}" role="button" tabindex="0">${badge(m.at)}<div class="grow"><b>${b?esc(b.title):'Club meeting'}</b><div class="sm mute">${esc(fmtDay(m.at))} ${esc(fmtTime(m.at))}${m.location?' · '+esc(m.location):''}${m.host?' · Hosted by '+esc(m.host):''}</div><div class="row tiny mute" style="gap:8px;margin-top:4px">${(m.attendees||[]).length?avs(m.attendees):''}${m.minutes?'<span>Minutes</span>':''}${(m.items||[]).length?`<span>${plural(m.items.length,'shared item')}</span>`:''}</div></div></div>`;
+}
+function vMeetings(){
+  const ms=meetings(),up=ms.filter(isUpcoming),past=ms.filter(m=>!isUpcoming(m)).reverse();
+  const att={};roster().forEach(e=>{const n=past.filter(m=>(m.attendees||[]).some(a=>e.ids.includes(a))).length;if(n)att[e.id]=n});
+  return `<div class="stack"><div class="row spread"><h2>Meetings</h2><div class="row"><button class="btn primary" data-act="log-meeting">Add meeting</button><button class="btn" data-act="new-sched">Find a date</button></div></div>
+  ${up.length?`<div class="card"><h3>Upcoming</h3>${up.map(m=>meetingRow(m)).join('')}</div>`:''}
+  <div class="card"><h3>Past meetings</h3>${past.length?past.map(m=>meetingRow(m)).join(''):'<p class="mute">No past meetings logged yet. Use “Add meeting” to backfill your history.</p>'}</div>
+  ${Object.keys(att).length?`<div class="card"><h3>Attendance</h3>${Object.entries(att).sort((a,b)=>b[1]-a[1]).map(([u,n])=>`<div class="item" style="align-items:center">${avatar(u)}<div class="grow">${esc(nm(u))}</div><b>${n}</b><span class="tiny mute">of ${past.length}</span></div>`).join('')}</div>`:''}
+  </div>`;
+}
+
+/* ---------- modal system ---------- */
+function openModal(render,bind,live){modal={render,bind,live:!!live};drawModal();document.body.classList.add('noscroll')}
+function closeModal(){modal=null;$('#modalRoot').innerHTML='';document.body.classList.remove('noscroll')}
+function drawModal(){
+  if(!modal)return;const root=$('#modalRoot');
+  const keep={};let focus=null;const old=$('.sheet',root);const st=old?old.scrollTop:0;
+  $$('[id]',root).forEach(el=>{
+    if(!/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))return;
+    const dirty=el.type==='checkbox'||el.type==='radio'?false:(el.dataset.orig!==undefined&&el.value!==el.dataset.orig);
+    if(dirty||el===document.activeElement)keep[el.id]=el.value;
+    if(el===document.activeElement)focus={id:el.id,s:el.selectionStart,e:el.selectionEnd};
+  });
+  root.innerHTML=`<div class="scrim" data-act="scrim"><div class="sheet" role="dialog" aria-modal="true">${modal.render()}</div></div>`;
+  $$('textarea,input[type=text],input[type=url],select',root).forEach(el=>{if(el.dataset.orig===undefined)el.dataset.orig=el.value});
+  Object.entries(keep).forEach(([id,v])=>{const el=document.getElementById(id);if(el)el.value=v});
+  if(focus){const el=document.getElementById(focus.id);if(el){el.focus();try{el.setSelectionRange(focus.s,focus.e)}catch(e){}}}
+  $('.sheet',root).scrollTop=st;
+  if(modal.bind)modal.bind($('.sheet',root));
+}
+const head=(t,sub)=>`<div class="row" style="align-items:flex-start"><div class="grow"><h2 style="margin:0">${t}</h2>${sub?`<div class="mute sm">${sub}</div>`:''}</div><button class="x" data-act="close" aria-label="Close">×</button></div>`;
+const val=id=>{const e=document.getElementById(id);return e?e.value.trim():''};
+const bookOptions=(sel,none)=>`<option value="">${none||'No book'}</option>`+books().sort((a,b)=>a.title.localeCompare(b.title)).map(b=>`<option value="${b.id}" ${b.id===sel?'selected':''}>${esc(b.title)}</option>`).join('');
+
+/* --- book form --- */
+function bookForm(id){
+  const b=id?S.books[id]:{status:'someday'};if(!b)return;
+  const tags=allTags();const sugg=[...new Set(GENRES.concat(Object.keys(tags)))];
+  openModal(()=>`${head(id?'Edit book':'Add a book')}
+  <label class="f">Title<input type="text" id="bf-title" value="${esc(b.title||'')}"></label>
+  <label class="f">Author<input type="text" id="bf-author" value="${esc(b.author||'')}"></label>
+  <div class="row" style="align-items:flex-start"><label class="f grow">Status<select id="bf-status">${Object.entries(STATUS).map(([k,l])=>`<option value="${k}" ${b.status===k?'selected':''}>${l}</option>`).join('')}</select></label></div>
+  <label class="f">Month read (optional)<input type="month" id="bf-read" value="${esc(b.readOn||'')}"></label>
+  <label class="f">Genre tags (comma separated)<input type="text" id="bf-tags" value="${esc((b.tags||[]).join(', '))}" placeholder="mystery, historical"></label>
+  <div class="chips" style="margin-top:8px">${sugg.map(t=>`<button class="chip" type="button" data-act="sugg-tag" data-t="${esc(t)}">+ ${esc(t)}</button>`).join('')}</div>
+  <label class="f">Description or notes<textarea id="bf-blurb">${esc(b.blurb||'')}</textarea></label>
+  <div class="row" style="margin-top:16px"><button class="btn primary" data-act="save-book" data-id="${id||''}">${id?'Save changes':'Add to library'}</button><button class="btn" data-act="close">Cancel</button></div>`);
+}
+async function saveBook(id){
+  const title=val('bf-title');if(!title){toast('Please enter a title.');return}
+  const prev=id?S.books[id]:{};
+  const data={...prev,title,author:val('bf-author'),status:val('bf-status'),readOn:val('bf-read'),tags:parseTags(val('bf-tags')),blurb:val('bf-blurb')};
+  if(!id){data.createdAt=Date.now();data.addedBy=me||''}
+  const bid=id||newId('books');
+  if(await put('books/'+bid,data)){closeModal()}
+}
+
+/* --- book detail --- */
+function openBook(id){const r=((S.reviews[me]||{}).items||{})[id];rv={bid:id,rating:r&&r.rating!=null?r.rating:null,cats:r&&r.cats?{...r.cats}:{}};openModal(()=>bookDetail(id),bindDetail,true)}
+function bindDetail(root){const t=$('#newTag',root);if(t)t.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();A['add-tag']()}}}
+function bookDetail(id){
+  const b=S.books[id];if(!b)return head('Book removed')+'<p class="mute">This book is no longer in the library.</p>';
+  const rs=reviewsFor(id).sort((a,b)=>(b.at||0)-(a.at||0)),a=avg(id),mine=rs.find(r=>r.uid===me),ms=meetingsFor(id);
+  if(rv.bid!==id){rv={bid:id,rating:mine&&mine.rating!=null?mine.rating:null,cats:mine&&mine.cats?{...mine.cats}:{}}}
+  const cl=catsList();
+  const catAvg=cl.map(c=>({c,a:avgBy(id,c.id),n:catVals(id,c.id).length})).filter(x=>x.a!=null);
+  return `${head(esc(b.title),esc(b.author||''))}
+  <div class="row" style="margin-top:14px;align-items:flex-start">${cover(b,'lg')}<div class="grow stack">
+    <div class="row">${a!=null?stars(a)+` <b>${fmt(a)}</b> <span class="mute sm">${plural(rs.length,'review')}</span>`:'<span class="mute">No ratings yet</span>'}</div>
+    <label class="sm" style="font-weight:500">Status <select id="statusSel" data-change="status" style="width:auto;margin-left:6px">${Object.entries(STATUS).map(([k,l])=>`<option value="${k}" ${b.status===k?'selected':''}>${l}</option>`).join('')}</select></label>
+    <div class="sm"><a href="${esc('https://www.goodreads.com/search?q='+encodeURIComponent(((b.title||'')+' '+(b.author||'')).trim()))}" target="_blank" rel="noopener noreferrer">Find on Goodreads</a></div>
+    ${b.readOn&&!ms.length?`<div class="sm mute">Read in ${esc(fmtMonth(b.readOn))}</div>`:''}
+  </div></div>
+  <div class="chips" style="margin-top:14px">${(b.tags||[]).map(t=>`<span class="chip">${esc(t)} <button class="x" style="font-size:14px;margin-left:2px" data-act="rm-tag" data-t="${esc(t)}" aria-label="Remove ${esc(t)}">×</button></span>`).join('')}</div>
+  <div class="row" style="margin-top:8px"><input type="text" id="newTag" list="tagList" placeholder="Add genre tag" style="max-width:220px"><datalist id="tagList">${GENRES.concat(Object.keys(allTags())).map(t=>`<option value="${esc(t)}">`).join('')}</datalist><button class="btn s" data-act="add-tag">Add tag</button></div>
+  ${b.blurb?`<p class="pre" style="margin-top:14px">${esc(b.blurb)}</p>`:''}
+  ${ms.length?`<hr><h3>Discussed at</h3><div class="chips" style="margin-top:8px">${ms.map(m=>`<button class="chip" style="text-transform:none" data-act="open-meeting" data-id="${m.id}">${esc(fmtDay(m.at))}</button>`).join('')}</div>`:''}
+  <hr><h3>Your review</h3>
+  <div class="catq"><div class="sm">Overall (0–5, quarter points)</div>${scale('overall',rv.rating)}</div>
+  <div class="tiny mute" style="margin-top:14px">Optional: score the details</div>
+  ${cl.map(c=>`<div class="catq" style="margin-top:8px"><div class="sm">${esc(c.label)}</div>${scale(c.id,rv.cats[c.id]==null?null:rv.cats[c.id])}</div>`).join('')}
+  <label class="f">Thoughts (optional)<textarea id="revText" placeholder="What did you think? Spoilers welcome, it’s your club.">${esc(mine?mine.text||'':'')}</textarea></label>
+  <div class="row" style="margin-top:10px"><button class="btn primary" data-act="save-review">${mine?'Update review':'Save review'}</button>${mine?'<button class="btn danger s" data-act="rm-review">Remove mine</button>':''}</div>
+  ${rs.length?`<hr><h3>Club reviews</h3>
+  ${catAvg.length?`<div style="margin:8px 0 6px">${catAvg.map(x=>`<div class="catline"><span class="l">${esc(x.c.label)}</span><div class="meter"><i style="width:${x.a/5*100}%"></i></div><b>${fmt(x.a)}</b></div>`).join('')}</div>`:''}
+  ${rs.map(r=>{const cs=cl.filter(c=>r.cats&&r.cats[c.id]!=null);return `<div class="item">${avatar(r.uid)}<div class="grow"><b>${esc(nm(r.uid))}</b> ${r.rating!=null?stars(r.rating)+' <b class="sm">'+fmt(r.rating)+'/5</b>':''}${cs.length?`<div class="chips" style="margin-top:4px">${cs.map(c=>`<span class="chip st">${esc(c.label)} ${fmt(r.cats[c.id])}</span>`).join('')}</div>`:''}${r.text?`<div class="pre sm" style="margin-top:4px">${esc(r.text)}</div>`:''}</div></div>`}).join('')}`:''}
+  <hr><div class="row"><button class="btn s" data-act="edit-book" data-id="${id}">Edit details</button><button class="btn danger s" data-act="del-book" data-id="${id}">Delete book</button></div>`;
+}
+
+/* --- meeting form & detail --- */
+function meetingForm(id,prefill){
+  const m=id?S.meetings[id]:(prefill||{});
+  const defAt=(m.at&&m.at.length===10?m.at+'T19:00':m.at)||(()=>{const d=new Date();d.setDate(d.getDate()+14);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T19:00`})();
+  openModal(()=>`${head(id?'Edit meeting':'Add a meeting')}
+  <label class="f">Date & time<input type="datetime-local" id="mf-at" value="${esc(defAt)}"></label>
+  <label class="f">Book discussed<select id="mf-book">${bookOptions(m.bookId)}</select></label>
+  <label class="f">Where<input type="text" id="mf-loc" value="${esc(m.location||'')}" placeholder="Someone’s place, a café, Zoom link…"></label>
+  <label class="f">Hosted by<input type="text" id="mf-host" list="rosterNames" value="${esc(m.host||'')}" placeholder="Pick or type a name">${hostList()}</label>
+  <div class="row" style="margin-top:16px"><button class="btn primary" data-act="save-meeting" data-id="${id||''}" data-sched="${esc(m.scheduleId||'')}">${id?'Save changes':'Add meeting'}</button><button class="btn" data-act="close">Cancel</button></div>`);
+}
+async function saveMeeting(id,sched){
+  const at=val('mf-at');if(!at){toast('Please choose a date.');return}
+  const prev=id?S.meetings[id]:{attendees:[],guests:'',minutes:'',items:[]};
+  const data={...prev,at,bookId:val('mf-book'),location:val('mf-loc'),host:val('mf-host')};
+  if(sched)data.scheduleId=sched;
+  const mid=id||newId('meetings');
+  if(await put('meetings/'+mid,data)){
+    if(!id&&data.bookId&&S.books[data.bookId]&&S.books[data.bookId].status!=='read'&&!isUpcoming({at}))await upd('books/'+data.bookId,{status:'read'});
+    closeModal();if(!id)openMeeting(mid)}
+}
+function openMeeting(id){itemDraft={tags:[]};openModal(()=>meetingDetail(id),null,true)}
+function meetingDetail(id){
+  const m=S.meetings[id];if(!m)return head('Meeting removed')+'<p class="mute">This meeting no longer exists.</p>';
+  const b=m.bookId&&S.books[m.bookId],att=m.attendees||[],items=m.items||[];
+  const ros=roster();
+  return `${head(b?esc(b.title):'Club meeting',esc(fmtDay(m.at))+' '+esc(fmtTime(m.at))+(m.location?' · '+esc(m.location):'')+(m.host?' · hosted by '+esc(m.host):''))}
+  <div class="row" style="margin-top:10px">${b?`<button class="btn s" data-act="open-book" data-id="${b.id}">View book</button>`:''}<button class="btn s" data-act="edit-meeting" data-id="${id}">Edit details</button></div>
+  <hr><h3>Who came</h3><div class="chips" style="margin-top:8px">${ros.map(e=>`<button class="pill ${e.ids.some(i=>att.includes(i))?'on':''}" data-act="toggle-att" data-id="${id}" data-u="${esc(e.id)}">${avatar(e.id)}${esc(e.name)}</button>`).join('')||'<span class="mute">No members yet. Add people on the Members page.</span>'}</div>
+  <label class="f">Guests (names, optional)<input type="text" id="guestTxt" data-change="guests" value="${esc(m.guests||'')}" placeholder="Plus-ones, visitors…"></label>
+  <hr><h3>Meeting minutes</h3>
+  <textarea id="minTxt" style="min-height:140px;margin-top:8px" placeholder="Discussion highlights, favorite quotes, what we decided…">${esc(m.minutes||'')}</textarea>
+  <div class="row" style="margin-top:8px"><button class="btn primary s" data-act="save-minutes" data-id="${id}">Save minutes</button><span class="tiny mute">Anyone in the club can edit the minutes.</span></div>
+  <hr><h3>Shared at this meeting</h3><div>${items.length?items.map(it=>{const u=safeUrl(it.url);return `<div class="item"><span class="chip st">${esc(it.type)}</span><div class="grow"><b>${u?`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(it.title)}</a>`:esc(it.title)}</b>${(it.tags||[]).length?`<div class="chips" style="margin-top:4px">${it.tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div>`:''}${it.notes?`<details><summary>${it.type==='recipe'?'Recipe':'Notes'}</summary><div class="pre sm">${esc(it.notes)}</div></details>`:''}</div><button class="btn danger s" data-act="rm-item" data-id="${id}" data-i="${it.id}">Remove</button></div>`}).join(''):'<p class="mute sm">Recipes, snacks, playlists, articles, anything worth remembering.</p>'}</div>
+  <div class="card" style="margin-top:10px;background:var(--bg)"><div class="row"><select id="itType" style="width:auto"><option value="recipe">Recipe</option><option value="link">Link</option><option value="other">Other</option></select><input type="text" id="itTitle" placeholder="Title (e.g. Lemon olive oil cake)" class="grow" style="width:auto;flex:1"></div>
+  <input type="url" id="itUrl" placeholder="Link (optional)" style="margin-top:8px"><textarea id="itNotes" placeholder="Ingredients, notes, or why it was great (optional)" style="margin-top:8px;min-height:70px"></textarea>
+  <div style="margin-top:10px">${labelPicker(itemDraft.tags,'draft-tag','draft-extra','it-extra')}</div><button class="btn s" style="margin-top:8px" data-act="add-item" data-id="${id}">Add to meeting</button></div>
+  <hr><button class="btn danger s" data-act="del-meeting" data-id="${id}">Delete meeting</button>`;
+}
+
+/* --- polls forms --- */
+function optRow(){return `<div class="card optrow" style="margin-top:8px;padding:12px"><div class="row"><input type="text" class="o-title grow" placeholder="Book title" style="flex:1;width:auto"><input type="text" class="o-author grow" placeholder="Author" style="flex:1;width:auto"></div><input type="text" class="o-tags" placeholder="Genres (comma separated)" style="margin-top:8px"><input type="text" class="o-blurb" placeholder="Why this one? (optional)" style="margin-top:8px"></div>`}
+function newPoll(){
+  const mo=new Date().toLocaleDateString(undefined,{month:'long'});
+  openModal(()=>`${head('New book poll','Everyone can approve as many books as they like.')}
+  <label class="f">Poll title<input type="text" id="np-title" value="Next book: ${esc(mo)}"></label>
+  <label class="f">Vote by (optional)<input type="date" id="np-by"></label>
+  <h3 style="margin-top:16px">Candidates</h3><div id="optRows">${optRow()+optRow()+optRow()}</div>
+  <button class="btn s" style="margin-top:8px" data-act="more-opt">Add another book</button>
+  <div class="row" style="margin-top:18px"><button class="btn primary" data-act="save-poll">Start poll</button><button class="btn" data-act="close">Cancel</button></div>`);
+}
+async function savePoll(){
+  const opts=$$('.optrow').map(r=>({id:'o'+rid(),title:$('.o-title',r).value.trim(),author:$('.o-author',r).value.trim(),tags:parseTags($('.o-tags',r).value),blurb:$('.o-blurb',r).value.trim(),by:me||''})).filter(o=>o.title);
+  if(opts.length<2){toast('Add at least two candidate books.');return}
+  const id=newId('polls');
+  if(await put('polls/'+id,{title:val('np-title')||'Next book',options:opts,status:'open',voteBy:val('np-by'),createdBy:me||'',createdAt:Date.now()})){closeModal();location.hash='polls'}
+}
+function closePollModal(pid){
+  const p=S.polls[pid];if(!p)return;const voters=votersOf(pid);
+  const c=(p.options||[]).map(o=>({o,n:voters.filter(u=>S.ballots[u].polls[pid].includes(o.id)).length})).sort((a,b)=>b.n-a.n);
+  const tie=c.length>1&&c[0].n===c[1].n;
+  openModal(()=>`${head('Pick the winner')}
+  ${tie?'<p class="sm" style="color:var(--warm)">There’s a tie at the top. Choose which book wins.</p>':''}
+  <div class="stack" style="margin-top:10px">${c.map((x,i)=>`<label class="card row" style="cursor:pointer"><input type="radio" name="win" value="${x.o.id}" ${i===0?'checked':''} style="width:auto"><div class="grow"><b>${esc(x.o.title)}</b> <span class="mute sm">${esc(x.o.author||'')}</span></div><b>${x.n}</b></label>`).join('')}</div>
+  <p class="tiny mute">The winner is added to the library as “Up next”.</p>
+  <div class="row" style="margin-top:14px"><button class="btn primary" data-act="confirm-close" data-id="${pid}">Close poll</button><button class="btn" data-act="close">Cancel</button></div>`);
+}
+async function confirmClose(pid){
+  const p=S.polls[pid];if(!p||p.status!=='open'){closeModal();return}
+  const r=document.querySelector('input[name=win]:checked');if(!r)return;
+  const o=(p.options||[]).find(x=>x.id===r.value);if(!o)return;
+  const bid=newId('books');
+  const ok=await put('books/'+bid,{title:o.title,author:o.author||'',tags:o.tags||[],blurb:o.blurb||'',status:'upcoming',readOn:'',createdAt:Date.now(),addedBy:me||'',fromPoll:pid});
+  if(ok&&await upd('polls/'+pid,{status:'closed',winnerOpt:o.id,bookId:bid})){closeModal();toast('“'+o.title+'” is up next!')}
+}
+function slotRow(v){return `<div class="row slotrow" style="margin-top:8px"><input type="datetime-local" class="s-at" value="${v||''}" style="flex:1;width:auto"></div>`}
+function newSched(){
+  const base=new Date();base.setDate(base.getDate()+(((6-base.getDay())+7)%7||7)+7);
+  const mk=(d,h)=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(h)}:00`;
+  const d1=new Date(base),d2=new Date(base);d2.setDate(d2.getDate()+1);const d3=new Date(base);d3.setDate(d3.getDate()+7);
+  openModal(()=>`${head('Find a meeting date','Propose a few times, then everyone marks what works.')}
+  <label class="f">Title<input type="text" id="ns-title" value="Next meeting"></label>
+  <label class="f">Book we’ll discuss (optional)<select id="ns-book">${bookOptions((books().find(b=>b.status==='reading')||books().find(b=>b.status==='upcoming')||{}).id)}</select></label>
+  <h3 style="margin-top:16px">Possible times</h3><div id="slotRows">${slotRow(mk(d1,19))+slotRow(mk(d2,16))+slotRow(mk(d3,19))}</div>
+  <button class="btn s" style="margin-top:8px" data-act="more-slot">Add another time</button>
+  <div class="row" style="margin-top:18px"><button class="btn primary" data-act="save-sched">Start poll</button><button class="btn" data-act="close">Cancel</button></div>`);
+}
+async function saveSched(){
+  const slots=$$('.s-at').map(i=>i.value).filter(Boolean).map(at=>({id:'t'+rid(),at}));
+  if(slots.length<2){toast('Add at least two times.');return}
+  const id=newId('schedules');
+  if(await put('schedules/'+id,{title:val('ns-title')||'Next meeting',bookId:val('ns-book'),slots,status:'open',createdBy:me||'',createdAt:Date.now()})){closeModal();location.hash='polls'}
+}
+function lockModal(sid){
+  const s=S.schedules[sid];if(!s)return;
+  const slots=(s.slots||[]).slice().sort((a,b)=>a.at.localeCompare(b.at));
+  const best=slots.slice().sort((a,b)=>slotScore(sid,b.id)-slotScore(sid,a.id))[0];
+  openModal(()=>`${head('Lock in a date')}
+  <div class="stack" style="margin-top:10px">${slots.map(x=>{const v=slotVotes(sid,x.id);return `<label class="card row" style="cursor:pointer"><input type="radio" name="slot" value="${x.id}" ${best&&best.id===x.id?'checked':''} style="width:auto"><div class="grow"><b>${esc(fmtDay(x.at))}</b> ${esc(fmtTime(x.at))}</div><span class="sm mute">${v.y.length} yes, ${v.m.length} maybe</span></label>`}).join('')}</div>
+  <label class="f">Where<input type="text" id="lk-loc" placeholder="Location or link"></label>
+  <label class="f">Hosted by<input type="text" id="lk-host" list="rosterNames" placeholder="Pick or type a name">${hostList()}</label>
+  <p class="tiny mute">This creates a meeting on the Meetings page and closes the poll.</p>
+  <div class="row" style="margin-top:14px"><button class="btn primary" data-act="confirm-lock" data-id="${sid}">Create meeting</button><button class="btn" data-act="close">Cancel</button></div>`);
+}
+async function confirmLock(sid){
+  const s=S.schedules[sid];if(!s||s.status!=='open'){closeModal();return}
+  const r=document.querySelector('input[name=slot]:checked');if(!r)return;
+  const slot=(s.slots||[]).find(x=>x.id===r.value);if(!slot)return;
+  const mid=newId('meetings');
+  const ok=await put('meetings/'+mid,{at:slot.at,bookId:s.bookId||'',location:val('lk-loc'),host:val('lk-host'),attendees:[],guests:'',minutes:'',items:[],scheduleId:sid});
+  if(ok&&await upd('schedules/'+sid,{status:'closed',meetingId:mid,chosenSlot:slot.id})){closeModal();toast('Meeting added to the calendar.')}
+}
+const catRow=c=>`<div class="row catrow" data-id="${esc(c.id)}" style="margin-top:8px"><input type="text" class="c-label" value="${esc(c.label)}" style="flex:1;width:auto"><button class="btn s danger" data-act="rm-cat" aria-label="Remove category">×</button></div>`;
+function renameClub(){openModal(()=>`${head('Club settings')}
+  <label class="f">Club name<input type="text" id="cn" value="${esc(club.name)}"></label>
+  <h3 style="margin-top:20px">Review categories</h3><div class="tiny mute">Members score each book 0–5 (quarter points) overall, plus these (up to 8). Removing a category hides it but keeps old scores.</div>
+  <div id="catRows">${catsList().map(catRow).join('')}</div>
+  <div class="chips" style="margin-top:10px">${CAT_IDEAS.map(l=>`<button class="chip" style="text-transform:none" data-act="cat-idea" data-l="${esc(l)}">+ ${esc(l)}</button>`).join('')}</div>
+  <button class="btn s" style="margin-top:10px" data-act="cat-add">Add custom category</button>
+  <div class="row" style="margin-top:18px"><button class="btn primary" data-act="save-club">Save</button><button class="btn" data-act="close">Cancel</button></div>`)}
+
+/* ---------- MEMBERS ---------- */
+function vMembers(){
+  const held=meetings().filter(m=>!isUpcoming(m)).length;
+  const rows=roster().map(e=>({e,s:stats(e)})).sort((a,b)=>b.s.att.length-a.s.att.length||a.e.name.localeCompare(b.e.name));
+  return `<div class="stack"><div class="row spread"><h2>Members</h2><button class="btn primary" data-act="add-person">Add a member</button></div>
+  <div class="tiny mute">People who sign in show up here on their own. Add anyone who hasn’t, so their attendance still counts. “Books read” means discussed at a meeting they attended, or reviewed by them.</div>
+  ${rows.length?`<div class="grid">${rows.map(({e,s})=>{const g=grLink(e);return `<div class="card bookcard" data-act="open-member" data-id="${esc(e.id)}" role="button" tabindex="0">${avatar(e.id)}<div class="grow"><h3>${esc(e.name)}${e.id===me?' <span class="tiny mute">(you)</span>':''}</h3>${g?`<div class="tiny"><a href="${esc(g)}" target="_blank" rel="noopener noreferrer">Goodreads profile</a></div>`:''}<div class="sm mute" style="margin-top:6px">${s.att.length} of ${held} meetings · ${plural(s.read.length,'book')} read · ${plural(s.reviewed.length,'review')}${s.hosted.length?' · hosted '+s.hosted.length:''}</div></div></div>`}).join('')}</div>`:'<div class="card empty">No members yet.</div>'}
+  </div>`;
+}
+function openMember(id){openModal(()=>memberDetail(id),null,true)}
+function memberDetail(id){
+  const e=rosterEntry(id);if(!e)return head('Not found')+'<p class="mute">This person is no longer on the roster.</p>';
+  const s=stats(e),g=grLink(e),held=meetings().filter(m=>!isUpcoming(m)).length;
+  const self=e.kind==='member'&&e.id===me,editable=self||e.kind==='person';
+  const rawGr=e.kind==='member'?((S.members[e.id]||{}).goodreads||''):((S.people[e.id]||{}).goodreads||'');
+  const claimable=e.kind==='person'&&me&&!roster().some(x=>x.id===me&&x.ids.length>1);
+  const att=s.att.slice().reverse(),cl=catsList();
+  const revs=s.reviewed.map(b=>({b,...s.rv[b]})).sort((a,b)=>(b.at||0)-(a.at||0));
+  const unrev=s.read.filter(b=>!s.reviewed.includes(b));
+  return `${head(esc(e.name)+(self?' <span class="mute sm">(you)</span>':''),e.kind==='member'?'Signed-in member':'Added to the roster')}
+  <div class="row" style="margin-top:12px">${g?`<a class="btn s" href="${esc(g)}" target="_blank" rel="noopener noreferrer">Goodreads profile</a>`:'<span class="mute sm">No Goodreads link yet</span>'}</div>
+  <div class="tiles" style="margin-top:14px"><div class="tile"><b>${s.att.length}<span style="font:400 13px Inter"> / ${held}</span></b><span>Meetings</span></div><div class="tile"><b>${s.read.length}</b><span>Books read</span></div><div class="tile"><b>${s.reviewed.length}</b><span>Reviews</span></div><div class="tile"><b>${s.avg!=null?fmt(s.avg):'–'}</b><span>Avg score</span></div><div class="tile"><b>${s.hosted.length}</b><span>Hosted</span></div></div>
+  ${editable?`<hr>${e.kind==='person'?`<label class="f">Name<input type="text" id="pn-name" value="${esc(e.name)}"></label>`:''}<label class="f">Goodreads profile link<input type="url" id="gr-url" value="${esc(rawGr)}" placeholder="https://www.goodreads.com/user/show/…"></label><div class="row" style="margin-top:10px"><button class="btn primary s" data-act="save-profile" data-id="${esc(e.id)}">Save</button></div>`:''}
+  <hr><h3>Meetings attended</h3>${att.length?att.map(m=>`<div class="item" data-act="open-meeting" data-id="${m.id}" style="cursor:pointer;align-items:center"><div class="grow"><b>${S.books[m.bookId]?esc(S.books[m.bookId].title):'Club meeting'}</b><div class="tiny mute">${esc(fmtDay(m.at))}</div></div></div>`).join(''):'<p class="mute sm">None recorded yet. Tick them off inside each meeting.</p>'}
+  ${revs.length?`<hr><h3>Reviews</h3>${revs.map(r=>{const cs=cl.filter(c=>r.cats&&r.cats[c.id]!=null);return `<div class="item" data-act="open-book" data-id="${r.b}" style="cursor:pointer"><div class="grow"><b>${esc(S.books[r.b].title)}</b> ${r.rating!=null?stars(r.rating)+' <b class="sm">'+fmt(r.rating)+'/5</b>':''}${cs.length?`<div class="chips" style="margin-top:4px">${cs.map(c=>`<span class="chip st">${esc(c.label)} ${fmt(r.cats[c.id])}</span>`).join('')}</div>`:''}${r.text?`<div class="pre sm" style="margin-top:4px">${esc(r.text)}</div>`:''}</div></div>`}).join('')}`:''}
+  ${unrev.length?`<hr><h3>Also read (no review)</h3><div class="chips" style="margin-top:8px">${unrev.map(b=>`<button class="chip" style="text-transform:none" data-act="open-book" data-id="${b}">${esc(S.books[b].title)}</button>`).join('')}</div>`:''}
+  ${e.kind==='person'?`<hr><div class="row">${claimable?`<button class="btn s" data-act="claim-person" data-id="${esc(e.id)}">That’s me</button>`:''}<button class="btn danger s" data-act="del-person" data-id="${esc(e.id)}">Remove from roster</button></div>${claimable?'<div class="tiny mute" style="margin-top:6px">“That’s me” links this entry to your account so your history and reviews combine.</div>':''}`:''}`;
+}
+function addPerson(){openModal(()=>`${head('Add a member','For people who haven’t signed in yet.')}
+  <label class="f">Name<input type="text" id="ap-name"></label>
+  <label class="f">Goodreads profile link (optional)<input type="url" id="ap-gr" placeholder="https://www.goodreads.com/user/show/…"></label>
+  <div class="row" style="margin-top:16px"><button class="btn primary" data-act="save-new-person">Add</button><button class="btn" data-act="close">Cancel</button></div>`)}
+const cleanGr=u=>{u=safeUrl(u);return u&&/goodreads\.com/i.test(u)?u:null};
+
+/* ---------- RECIPES ---------- */
+function toggleTag(a,t){const i=a.indexOf(t);if(i>=0){a.splice(i,1);return}if(COURSES.includes(t))for(let k=a.length-1;k>=0;k--)if(COURSES.includes(a[k]))a.splice(k,1);a.push(t)}
+function labelPicker(sel,act,xAct,xId,attrs){
+  const a=attrs?Object.entries(attrs).map(([k,v])=>` data-${k}="${esc(v)}"`).join(''):'';
+  const chip=t=>`<button class="chip ${sel.includes(t)?'on':''}" type="button" data-act="${act}" data-t="${esc(t)}"${a}>${esc(t)}</button>`;
+  const others=sel.filter(t=>!COURSES.includes(t)&&!DIETS.includes(t));
+  return `<div class="tiny mute">Course</div><div class="chips" style="margin:4px 0 10px">${COURSES.map(chip).join('')}</div><div class="tiny mute">Dietary</div><div class="chips" style="margin:4px 0 10px">${DIETS.map(chip).join('')}</div>${others.length?`<div class="tiny mute">Other</div><div class="chips" style="margin:4px 0 10px">${others.map(chip).join('')}</div>`:''}<div class="row"><input type="text" id="${xId}" placeholder="Add another label" style="max-width:200px"><button class="btn s" type="button" data-act="${xAct}"${a}>Add</button></div>`;
+}
+function recipes(){const out=[];meetings().forEach(m=>(m.items||[]).forEach(it=>{if(it.type==='recipe')out.push({...it,meetingId:m.id,at:m.at,bookId:m.bookId,host:m.host})}));return out.sort((a,b)=>(b.at||'').localeCompare(a.at||''))}
+function buildRecipesShell(){
+  $('#main').innerHTML=banner()+`<div class="stack"><div class="row spread"><h2>Recipes</h2><button class="btn primary" data-act="add-recipe">Add a recipe</button></div>
+  <div id="rsum" class="stack"></div>
+  <div class="toolbar"><input id="rq" type="search" placeholder="Search recipes, ingredients or labels…" value="${esc(RF.q)}"></div>
+  <div class="chips" id="rcourse"></div><div class="chips" id="rdiet"></div><div class="grid" id="rresults"></div></div>`;
+}
+function updateRecipes(){
+  const all=recipes(),cnt={};all.forEach(r=>(r.tags||[]).forEach(t=>cnt[t]=(cnt[t]||0)+1));
+  const byCourse=COURSES.map(c=>[c,cnt[c]||0]).filter(x=>x[1]);
+  const veg=all.filter(r=>(r.tags||[]).some(t=>t==='vegetarian'||t==='vegan')).length,dfree=all.filter(r=>(r.tags||[]).includes('dairy-free')).length;
+  $('#rsum').innerHTML=all.length?`<div class="tiles"><div class="tile"><b>${all.length}</b><span>Recipes</span></div><div class="tile"><b>${new Set(all.map(r=>r.meetingId)).size}</b><span>Meetings with food</span></div><div class="tile"><b>${veg}</b><span>Vegetarian or vegan</span></div><div class="tile"><b>${dfree}</b><span>Dairy-free</span></div></div>${byCourse.length?`<div class="sm mute">${byCourse.map(([c,n])=>n+' '+c+(n===1?'':'s')).join(' · ')}</div>`:''}`:'';
+  const ct=COURSES.filter(t=>cnt[t]);
+  const ot=Object.keys(cnt).filter(t=>!COURSES.includes(t)).sort((a,b)=>(DIETS.includes(a)?0:1)-(DIETS.includes(b)?0:1)||cnt[b]-cnt[a]||a.localeCompare(b));
+  $('#rcourse').innerHTML=ct.map(t=>`<button class="chip ${RF.course===t?'on':''}" data-act="rf-course" data-t="${esc(t)}">${esc(t)} ${cnt[t]}</button>`).join('');
+  $('#rdiet').innerHTML=ot.map(t=>`<button class="chip ${RF.diet.has(t)?'on':''}" data-act="rf-diet" data-t="${esc(t)}">${esc(t)} ${cnt[t]}</button>`).join('')+((RF.course||RF.diet.size||RF.q)&&all.length?'<button class="chip st" data-act="rf-clear">Clear filters</button>':'');
+  const q=RF.q.trim().toLowerCase();
+  const list=all.filter(r=>(!RF.course||(r.tags||[]).includes(RF.course))&&[...RF.diet].every(t=>(r.tags||[]).includes(t))&&(!q||[r.title,r.notes,(r.tags||[]).join(' ')].join(' ').toLowerCase().includes(q)));
+  $('#rresults').innerHTML=list.length?list.map(r=>{const b=S.books[r.bookId],pv=(r.notes||'').replace(/\s+/g,' ').trim();return `<div class="card bookcard" data-act="open-recipe" data-m="${esc(r.meetingId)}" data-i="${esc(r.id)}" role="button" tabindex="0" style="flex-direction:column;gap:8px"><div class="row spread"><h3>${esc(r.title)}</h3>${safeUrl(r.url)?'<span class="chip st">Link</span>':''}</div>${(r.tags||[]).length?`<div class="chips">${r.tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div>`:'<div class="tiny mute">No labels yet. Tap to add some.</div>'}<div class="tiny mute">${esc(fmtDay(r.at))}${b?' · '+esc(b.title):''}${r.host?' · hosted by '+esc(r.host):''}</div>${pv?`<div class="sm mute">${esc(pv.slice(0,140))}${pv.length>140?'…':''}</div>`:''}</div>`}).join(''):`<div class="card empty" style="grid-column:1/-1">${all.length?'No recipes match these filters.':'No recipes yet. Add one from here, or under “Shared at this meeting” inside any meeting, with its type set to Recipe.'}</div>`;
+}
+const findRec=(mid,iid)=>{const m=S.meetings[mid];const it=m&&(m.items||[]).find(i=>i.id===iid);return it?{m,it}:null};
+const updItem=(mid,iid,fn)=>{const m=S.meetings[mid];if(!m)return Promise.resolve(false);return upd('meetings/'+mid,{items:(m.items||[]).map(i=>i.id===iid?fn({...i}):i)})};
+function openRecipe(mid,iid){openModal(()=>recipeDetail(mid,iid),null,true)}
+function recipeDetail(mid,iid){
+  const f=findRec(mid,iid);if(!f)return head('Recipe removed')+'<p class="mute">This recipe is no longer on the meeting.</p>';
+  const {m,it}=f,b=S.books[m.bookId],u=safeUrl(it.url),at={m:mid,i:iid};
+  return `${head(esc(it.title),esc(fmtDay(m.at))+(b?' · '+esc(b.title):'')+(m.host?' · hosted by '+esc(m.host):''))}
+  <div class="row" style="margin-top:10px">${u?`<a class="btn s" href="${esc(u)}" target="_blank" rel="noopener noreferrer">Open link</a>`:''}<button class="btn s" data-act="open-meeting" data-id="${esc(mid)}">View meeting</button></div>
+  <hr><h3>Labels</h3><div style="margin-top:8px">${labelPicker(it.tags||[],'rec-tag','rec-extra','rt-extra',at)}</div>
+  <hr><h3>Details</h3>
+  <label class="f">Title<input type="text" id="rc-title" value="${esc(it.title)}"></label>
+  <label class="f">Link<input type="url" id="rc-url" value="${esc(it.url||'')}"></label>
+  <label class="f">Recipe or notes<textarea id="rc-notes" style="min-height:150px">${esc(it.notes||'')}</textarea></label>
+  <div class="row" style="margin-top:10px"><button class="btn primary s" data-act="rec-save" data-m="${esc(mid)}" data-i="${esc(iid)}">Save changes</button></div>
+  <hr><button class="btn danger s" data-act="del-rec" data-m="${esc(mid)}" data-i="${esc(iid)}">Remove recipe</button>`;
+}
+function addRecipe(){
+  rd={tags:[]};const ms=meetings().slice().reverse();
+  if(!ms.length){toast('Add a meeting first, then attach recipes to it.');return}
+  openModal(()=>`${head('Add a recipe','Recipes live on the meeting where they were shared.')}
+  <label class="f">Meeting<select id="ar-meeting">${ms.map(m=>`<option value="${esc(m.id)}">${esc(fmtDay(m.at))}${S.books[m.bookId]?' – '+esc(S.books[m.bookId].title):''}</option>`).join('')}</select></label>
+  <label class="f">Recipe name<input type="text" id="ar-title" placeholder="e.g. Lemon olive oil cake"></label>
+  <label class="f">Link (optional)<input type="url" id="ar-url"></label>
+  <label class="f">Ingredients, steps or notes (optional)<textarea id="ar-notes"></textarea></label>
+  <h3 style="margin-top:16px">Labels</h3><div style="margin-top:8px">${labelPicker(rd.tags,'rd-tag','rd-extra','rd-extra-in')}</div>
+  <div class="row" style="margin-top:16px"><button class="btn primary" data-act="save-recipe">Add recipe</button><button class="btn" data-act="close">Cancel</button></div>`,null,true);
+}
+
+/* ---------- actions ---------- */
+const armed=new WeakMap();
+function confirmTap(el,fn){if(armed.get(el)){armed.delete(el);fn();return}armed.set(el,1);const t=el.textContent;el.textContent='Tap again to confirm';el.classList.add('armed');setTimeout(()=>{armed.delete(el);if(el.isConnected){el.textContent=t;el.classList.remove('armed')}},3000)}
+const needMe=()=>{if(!me){toast('Sign in with a club account first.');return false}return true};
+const A={
+  close:()=>closeModal(),
+  scrim:(el,e)=>{if(e.target===el)closeModal()},
+  'rename-club':renameClub,
+  'save-club':async()=>{const n=val('cn')||club.name;const cats=$$('.catrow').map(r=>({id:r.dataset.id,label:$('.c-label',r).value.trim()})).filter(c=>c.label);if(await put('club/info',{name:n,cats:cats.length?cats:DEFAULT_CATS}))closeModal()},
+  'cat-add':()=>{if($$('.catrow').length>=8){toast('Up to 8 categories.');return}$('#catRows').insertAdjacentHTML('beforeend',catRow({id:'c'+rid(),label:''}));const l=$$('.c-label');l[l.length-1].focus()},
+  'cat-idea':el=>{const L=el.dataset.l;if($$('.catrow').length>=8){toast('Up to 8 categories.');return}if($$('.c-label').some(i=>i.value.trim().toLowerCase()===L.toLowerCase()))return;$('#catRows').insertAdjacentHTML('beforeend',catRow({id:'c'+rid(),label:L}))},
+  'rm-cat':el=>el.closest('.catrow').remove(),
+  'open-recipe':el=>openRecipe(el.dataset.m,el.dataset.i),
+  'add-recipe':addRecipe,
+  'rf-course':el=>{RF.course=RF.course===el.dataset.t?'':el.dataset.t;updateRecipes()},
+  'rf-diet':el=>{const t=el.dataset.t;RF.diet.has(t)?RF.diet.delete(t):RF.diet.add(t);updateRecipes()},
+  'rf-clear':()=>{RF.course='';RF.diet.clear();RF.q='';const i=$('#rq');if(i)i.value='';updateRecipes()},
+  'draft-tag':el=>{toggleTag(itemDraft.tags,el.dataset.t);drawModal()},
+  'draft-extra':()=>{const i=$('#it-extra');parseTags(i.value).forEach(t=>{if(!itemDraft.tags.includes(t))itemDraft.tags.push(t)});i.value='';i.dataset.orig='';drawModal()},
+  'rd-tag':el=>{toggleTag(rd.tags,el.dataset.t);drawModal()},
+  'rd-extra':()=>{const i=$('#rd-extra-in');parseTags(i.value).forEach(t=>{if(!rd.tags.includes(t))rd.tags.push(t)});i.value='';i.dataset.orig='';drawModal()},
+  'rec-tag':el=>updItem(el.dataset.m,el.dataset.i,it=>{const a=(it.tags||[]).slice();toggleTag(a,el.dataset.t);it.tags=a;return it}),
+  'rec-extra':async el=>{const i=$('#rt-extra'),ts=parseTags(i.value);if(!ts.length)return;i.value='';i.dataset.orig='';await updItem(el.dataset.m,el.dataset.i,it=>{it.tags=[...new Set((it.tags||[]).concat(ts))];return it})},
+  'rec-save':async el=>{const t=val('rc-title');if(!t){toast('A recipe needs a name.');return}if(await updItem(el.dataset.m,el.dataset.i,it=>({...it,title:t,url:val('rc-url'),notes:val('rc-notes')})))toast('Saved.')},
+  'del-rec':el=>confirmTap(el,async()=>{const m=S.meetings[el.dataset.m];if(m&&await upd('meetings/'+el.dataset.m,{items:(m.items||[]).filter(i=>i.id!==el.dataset.i)}))closeModal()}),
+  'save-recipe':async()=>{const title=val('ar-title'),mid=val('ar-meeting'),m=S.meetings[mid];if(!title){toast('Give the recipe a name.');return}if(!m)return;const tags=[...rd.tags];if(await upd('meetings/'+mid,{items:(m.items||[]).concat({id:'i'+rid(),type:'recipe',title,url:val('ar-url'),notes:val('ar-notes'),tags})}))closeModal()},
+  'open-member':el=>openMember(el.dataset.id),
+  'add-person':addPerson,
+  'save-new-person':async()=>{const name=val('ap-name');if(!name){toast('Please enter a name.');return}const raw=val('ap-gr');const gr=raw?cleanGr(raw):'';if(raw&&!gr){toast('That doesn\u2019t look like a Goodreads link.');return}if(await put('people/'+'p-'+rid(),{name,goodreads:gr,createdAt:Date.now()}))closeModal()},
+  'save-profile':async el=>{const e=rosterEntry(el.dataset.id);if(!e)return;const raw=val('gr-url');const gr=raw?cleanGr(raw):'';if(raw&&!gr){toast('Please paste a link to a Goodreads profile.');return}let ok;if(e.kind==='member'){if(e.id!==me)return;ok=await put('members/'+me,{...(S.members[me]||{}),goodreads:gr})}else{const name=val('pn-name');if(!name){toast('Name can\u2019t be empty.');return}ok=await upd('people/'+e.id,{name,goodreads:gr})}if(ok)toast('Saved.')},
+  'claim-person':async el=>{if(!needMe())return;await upd('people/'+el.dataset.id,{uid:me})},
+  'del-person':el=>confirmTap(el,async()=>{if(await del('people/'+el.dataset.id))closeModal()}),
+  'add-book':()=>bookForm(),
+  'edit-book':el=>bookForm(el.dataset.id),
+  'save-book':el=>saveBook(el.dataset.id),
+  'sugg-tag':el=>{const i=$('#bf-tags'),t=parseTags(i.value);if(!t.includes(el.dataset.t))t.push(el.dataset.t);i.value=t.join(', ')},
+  'open-book':el=>openBook(el.dataset.id),
+  'status-tab':el=>{F.status=el.dataset.k;updateBooks()},
+  'tag-filter':el=>{const t=el.dataset.t;F.tags.has(t)?F.tags.delete(t):F.tags.add(t);if(view==='books')updateBooks();else location.hash='books'},
+  'clear-tags':()=>{F.tags.clear();updateBooks()},
+  'add-tag':async()=>{const id=rv.bid,b=S.books[id],i=$('#newTag');if(!b||!i)return;const t=parseTags(i.value);if(!t.length)return;i.value='';await upd('books/'+id,{tags:[...new Set((b.tags||[]).concat(t))]})},
+  'rm-tag':async el=>{const id=rv.bid,b=S.books[id];if(b)await upd('books/'+id,{tags:(b.tags||[]).filter(t=>t!==el.dataset.t)})},
+  nudge:el=>{const k=el.dataset.k,cur=k==='overall'?rv.rating:rv.cats[k];const v=clampQ((cur==null?2.5:cur)+ +el.dataset.d);if(k==='overall')rv.rating=v;else rv.cats[k]=v;drawModal()},
+  'rate-clear':el=>{delete rv.cats[el.dataset.k];drawModal()},
+  'rank-by':el=>{rankBy=el.dataset.k;render()},
+  'save-review':async()=>{if(!needMe())return;if(rv.rating==null){toast('Choose an overall score from 0 to 5.');return}const items=clone((S.reviews[me]||{}).items);const cats={};catsList().forEach(c=>{if(rv.cats[c.id]!=null)cats[c.id]=clampQ(rv.cats[c.id])});items[rv.bid]={rating:clampQ(rv.rating),cats,text:val('revText'),at:Date.now()};if(await put('reviews/'+me,{items}))toast('Review saved.')},
+  'rm-review':async()=>{if(!needMe())return;const items=clone((S.reviews[me]||{}).items);delete items[rv.bid];rv.rating=null;rv.cats={};await put('reviews/'+me,{items})},
+  'del-book':(el)=>confirmTap(el,async()=>{if(await del('books/'+el.dataset.id))closeModal()}),
+  'new-poll':newPoll,'more-opt':()=>$('#optRows').insertAdjacentHTML('beforeend',optRow()),'save-poll':savePoll,
+  vote:async el=>{if(!needMe())return;const pid=el.dataset.p,oid=el.dataset.o,b=clone(S.ballots[me]);b.polls=b.polls||{};const a=new Set(b.polls[pid]||[]);a.has(oid)?a.delete(oid):a.add(oid);b.polls[pid]=[...a];await put('ballots/'+me,b)},
+  'close-poll':el=>closePollModal(el.dataset.id),'confirm-close':el=>confirmClose(el.dataset.id),
+  'del-poll':el=>confirmTap(el,()=>del('polls/'+el.dataset.id)),
+  'new-sched':newSched,'more-slot':()=>$('#slotRows').insertAdjacentHTML('beforeend',slotRow()),'save-sched':saveSched,
+  slot:async el=>{if(!needMe())return;const sid=el.dataset.s,t=el.dataset.t,b=clone(S.ballots[me]);b.slots=b.slots||{};const m=b.slots[sid]=b.slots[sid]||{};const cur=m[t];if(!cur)m[t]='yes';else if(cur==='yes')m[t]='maybe';else delete m[t];await put('ballots/'+me,b)},
+  'lock-sched':el=>lockModal(el.dataset.id),'confirm-lock':el=>confirmLock(el.dataset.id),
+  'del-sched':el=>confirmTap(el,()=>del('schedules/'+el.dataset.id)),
+  'log-meeting':()=>meetingForm(),
+  'edit-meeting':el=>meetingForm(el.dataset.id),
+  'save-meeting':el=>saveMeeting(el.dataset.id,el.dataset.sched),
+  'open-meeting':el=>openMeeting(el.dataset.id),
+  'toggle-att':async el=>{const m=S.meetings[el.dataset.id];if(!m)return;const e=rosterEntry(el.dataset.u);if(!e)return;let a=m.attendees||[];a=a.some(i=>e.ids.includes(i))?a.filter(i=>!e.ids.includes(i)):a.concat(e.id);await upd('meetings/'+el.dataset.id,{attendees:a})},
+  'save-minutes':async el=>{if(await upd('meetings/'+el.dataset.id,{minutes:document.getElementById('minTxt').value}))toast('Minutes saved.')},
+  'add-item':async el=>{const title=val('itTitle');if(!title){toast('Give it a title.');return}const m=S.meetings[el.dataset.id];if(!m)return;const tags=[...itemDraft.tags];itemDraft={tags:[]};const items=(m.items||[]).concat({id:'i'+rid(),type:val('itType'),title,url:val('itUrl'),notes:val('itNotes'),tags});if(await upd('meetings/'+el.dataset.id,{items})){['itTitle','itUrl','itNotes'].forEach(i=>{const e=document.getElementById(i);if(e){e.value='';e.dataset.orig=''}})}else{itemDraft={tags}}},
+  'rm-item':async el=>{const m=S.meetings[el.dataset.id];if(m)await upd('meetings/'+el.dataset.id,{items:(m.items||[]).filter(i=>i.id!==el.dataset.i)})},
+  'del-meeting':el=>confirmTap(el,async()=>{if(await del('meetings/'+el.dataset.id))closeModal()}),
+};
+document.addEventListener('click',e=>{if(e.target.closest('a[href]'))return;const el=e.target.closest('[data-act]');if(!el)return;const f=A[el.dataset.act];if(f){if(el.dataset.act!=='scrim')e.preventDefault();f(el,e)}});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&modal)closeModal();
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('[role=button][data-act]')){e.preventDefault();e.target.click()}
+});
+document.addEventListener('input',e=>{
+  const t=e.target;if(t.id==='q'){F.q=t.value;updateBooks()}
+  if(t.id==='rq'){RF.q=t.value;updateRecipes()}
+  if(t.type==='range'&&t.dataset.k){const k=t.dataset.k,v=clampQ(+t.value);if(k==='overall')rv.rating=v;else rv.cats[k]=v;t.classList.remove('unset');const o=$$('[data-out]').find(x=>x.dataset.out===k);if(o)o.textContent=fmt(v)}
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.id==='sort'){F.sort=t.value;updateBooks()}
+  if(t.type==='range'&&t.dataset.k&&modal)drawModal();
+  if(t.dataset.change==='status'&&rv.bid)upd('books/'+rv.bid,{status:t.value});
+  if(t.dataset.change==='guests'){const m=modal&&$$('[data-act=toggle-att]').length&&$('[data-act=toggle-att]').dataset.id;if(m)upd('meetings/'+m,{guests:t.value.trim()})}
+});
+
+/* ---------- routing & boot ---------- */
+function setView(){const v=(location.hash||'#home').slice(1);view=['home','polls','books','rankings','meetings','members','recipes'].includes(v)?v:'home';if(modal)closeModal();$('#main').innerHTML='';render();window.scrollTo(0,0)}
+window.addEventListener('hashchange',setView);
+
+async function boot(){
+  setView();
+  setTimeout(()=>{slow=true;schedule()},10000);
+  try{
+    if(typeof claude==='undefined'||!claude.use)throw 0;
+    user=await claude.use('user');db=await claude.use('db');
+  }catch(e){}
+  if(!db){failed=true;render();return}
+  try{if(user){me=await user.id();const w=await user.can('data.write');canWrite=w!==false}}catch(e){}
+  COLS.forEach(c=>db.collection(c).onSnapshot(snap=>{
+    const o={};snap.docs.forEach(d=>o[d.id]=d.data());S[c]=o;loaded[c]=true;
+    if(c==='members'&&!snap.metadata.fromCache&&me&&canWrite&&!o[me]){put('members/'+me,{since:Date.now()})}
+    resolveNames();schedule();
+  },()=>{loaded[c]=true;schedule()}));
+  db.doc('club/info').onSnapshot(s=>{if(s.exists){const d=s.data();club={name:d.name||club.name,cats:d.cats&&d.cats.length?d.cats:null};schedule()}},()=>{});
+}
+boot();
+})();
+</script>
+</body>
+</html>
