@@ -55,6 +55,8 @@ button.chip{cursor:pointer}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
 .tile{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+a.tile{display:block;text-decoration:none;color:inherit;cursor:pointer}
+a.tile:hover{border-color:var(--acc)}
 .tile b{display:block;font:600 26px Fraunces,Georgia,serif}
 .tile span{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
 .cover{--h:150;width:56px;height:80px;border-radius:3px 7px 7px 3px;flex:none;background:linear-gradient(160deg,hsl(var(--h) 38% 38%),hsl(calc(var(--h) + 30) 42% 25%));box-shadow:inset 3px 0 0 #0003,0 2px 6px #0003;color:#fff;font:600 9px/1.15 Fraunces,Georgia,serif;padding:7px 6px 6px 9px;overflow:hidden;display:flex;align-items:flex-end}
@@ -299,8 +301,8 @@ function vHome(){
   const recent=Object.entries(S.reviews).flatMap(([uid,d])=>Object.entries((d&&d.items)||{}).map(([bid,r])=>({uid,bid,...r}))).filter(r=>S.books[r.bid]).sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,4);
   return `<div class="stack">
   <div class="tiles">
-    <div class="tile"><b>${roster().length}</b><span>Members</span></div>
-    <div class="tile"><b>${past.length}</b><span>Meetings held</span></div>
+    <a class="tile" href="#members"><b>${roster().length}</b><span>Members</span></a>
+    <a class="tile" href="#meetings"><b>${past.length}</b><span>Meetings held</span></a>
   </div>
   ${openPolls.length||openScheds.length?`<h3>Open polls</h3>${openPolls.map(pollCard).join('')}${openScheds.map(schedCard).join('')}`:''}
   <div class="grid">
